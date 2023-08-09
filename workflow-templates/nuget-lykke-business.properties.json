@@ -1,0 +1,10 @@
+{
+    "name": "Lykke Business NuGet Publication Workflow",
+    "description": "Workflow to publish NuGet packages",
+    "categories": [
+        "Automation",
+        "Shell",
+        "Dotnet",
+        "NuGet"
+    ]
+}
