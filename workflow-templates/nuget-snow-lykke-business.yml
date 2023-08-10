@@ -41,6 +41,7 @@ jobs:
           version: ${{ github.event.inputs.version }}
 
       - name: Inject new version into changelog file
+        if: ${{ github.event.inputs.update_changelog == 'true' }}
         uses: LykkeBusiness/.github/actions/inject-version-changelog@inject-version-changelog-v1
         with:
           version: ${{ env.TAG_NUMBERS }}
