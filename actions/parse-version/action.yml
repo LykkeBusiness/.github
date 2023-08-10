@@ -1,0 +1,14 @@
+name: 'Parse Version Number'
+description: 'Extracts the version number from an input, removing any preceding "v"'
+inputs:
+  version:
+    description: 'Version string (e.g., v1.0.0)'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        TAG_VERSION=${{ inputs.version }}
+        TAG_NUMBERS=${TAG_VERSION#v} # Remove preceding "v" if present
+        echo "TAG_NUMBERS=$TAG_NUMBERS" >> $GITHUB_ENV
+      shell: bash
