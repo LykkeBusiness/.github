@@ -40,29 +40,10 @@ jobs:
         with:
           version: ${{ github.event.inputs.version }}
 
-      # Injects the new version into CHANGELOG.md by replacing placeholder
       - name: Inject new version into changelog file
-        if: ${{ github.event.inputs.update_changelog == 'true' }}
-        run: |
-          FILES=$(find . -type f -name 'CHANGELOG.md')
-          if [[ -z "$FILES" ]]; then
-            echo "CHANGELOG.md not found. Failing the workflow."
-            exit 1
-          fi
-
-          COUNT=$(echo "$FILES" | wc -l)
-          if [[ $COUNT -ne 1 ]]; then
-            echo "Found $COUNT instances of CHANGELOG.md. There must be exactly one. Failing the workflow."
-            exit 1
-          fi
-          
-          source ./lykke.snow.deployment/tools/core/changelog.sh
-          FILE=$(echo "$FILES" | head -n 1)
-          TBD_REPLACED=$(replace_tbd_placeholder "$FILE" "${{ env.TAG_NUMBERS }}")
-          if [[ $TBD_REPLACED -eq 0 ]]; then
-            echo "CHANGELOG.md does not contain a placeholder for the new version. Failing the workflow."
-            exit 1
-          fi
+        uses: LykkeBusiness/.github/actions/inject-version-changelog@inject-version-changelog-v1
+        with:
+          version: ${{ env.TAG_NUMBERS }}
       
       # Updates all .csproj files with the new version
       - name: Update .csproj files with new version
