@@ -45,24 +45,11 @@ jobs:
         uses: LykkeBusiness/.github/actions/inject-version-changelog@inject-version-changelog-v2
         with:
           version: ${{ env.TAG_NUMBERS }}
-      
-      # Updates all .csproj files with the new version
-      - name: Update .csproj files with new version
-        run: |
-          FILES=$(find . -type f -name '*.csproj')
-          if [[ -z "$FILES" ]]; then
-            echo "No .csproj files found. Failing the workflow."
-            exit 1
-          fi
 
-          source ./lykke.snow.deployment/tools/core/csproj.sh
-          for FILE in $FILES; do
-            VERSION_UPDATED=$(update_csproj_version "$FILE" "${{ env.TAG_NUMBERS }}")
-            if [[ $VERSION_UPDATED -eq 0 ]]; then
-              echo "Failed to update version in $FILE. Failing the workflow."
-              exit 1
-            fi
-          done
+      - name: Update .csproj files with new version
+        uses: LykkeBusiness/.github/actions/update-version-csproj@update-version-csproj-v1
+        with:
+          version: ${{ env.TAG_NUMBERS }}
           
       # Tags the current commit with the new version
       - name: Tag version
