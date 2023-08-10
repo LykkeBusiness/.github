@@ -6,7 +6,7 @@ inputs:
     required: true
   folder:
     description: 'Folder to search for CHANGELOG.md'
-    required: true
+    required: false
     default: '.'
   deployment_tools:
     description: 'Folder with deployment tools'
