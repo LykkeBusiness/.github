@@ -1,0 +1,33 @@
+name: 'Updates .csproj files with the new version'
+description: Updates all .csproj files with the new version'
+inputs:
+  version:
+    description: 'Version number without "v" (e.g. 1.0.0)'
+    required: true
+  folder:
+    description: 'Folder to search for .csproj files'
+    required: false
+    default: '.'
+  deployment_tools:
+    description: 'Folder with deployment tools'
+    required: false
+    default: './lykke.snow.deployment'
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        FILES=$(find ${{ inputs.folder }} -type f -name '*.csproj')
+          if [[ -z "$FILES" ]]; then
+            echo "No .csproj files found. Failing the workflow."
+            exit 1
+          fi
+
+          source ${{ inputs.deployment_tools }}/tools/core/csproj.sh
+          for FILE in $FILES; do
+            VERSION_UPDATED=$(update_csproj_version "$FILE" "${{ inputs.version }}")
+            if [[ $VERSION_UPDATED -eq 0 ]]; then
+              echo "Failed to update version in $FILE. Failing the workflow."
+              exit 1
+            fi
+          done
+      shell: bash
