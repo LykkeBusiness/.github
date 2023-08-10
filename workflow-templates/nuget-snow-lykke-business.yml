@@ -31,17 +31,14 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      # Checking out deployment tools repository from Bitbucket
       - name: Checkout deployment tools
         run: |
           git clone -v https://${{ secrets.BITBUCKET_USER }}:${{ secrets.BITBUCKET_PASSWORD }}@bitbucket.org/lykke-snow/lykke.snow.deployment.git lykke.snow.deployment
 
-      # Parses the version number, removes prefix and stores it in TAG_NUMBERS for later use
       - name: Parse version number
-        run: |
-          TAG_VERSION=${{ github.event.inputs.version }}
-          TAG_NUMBERS=${TAG_VERSION#v} # Remove preceding "v" if present
-          echo "TAG_NUMBERS=$TAG_NUMBERS" >> $GITHUB_ENV
+        uses: LykkeBusiness/.github/actions/parse-version
+        with:
+          version: ${{ github.event.inputs.version }}
 
       # Injects the new version into CHANGELOG.md by replacing placeholder
       - name: Inject new version into changelog file
