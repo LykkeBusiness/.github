@@ -1,0 +1,57 @@
+name: 'Extract release notes'
+description: 'Extracts latest release name and release notes from CHANGELOG.md or generates one if not present'
+inputs:
+  auto_name_release:
+    description: 'Automatically name the release if release name is not provided and it is not present in CHANGELOG.md'
+    required: true
+    default: false
+    type: boolean
+  release_name:
+    description: 'Release name, takes precedence over the release name extracted from CHANGELOG.md'
+    required: false
+  folder:
+    description: 'Folder to search for CHANGELOG.md files'
+    required: false
+    default: '.'
+  version:
+    description: 'Version number without "v" (e.g. 1.0.0). Used to generate release name if not present in CHANGELOG.md'
+    required: false
+runs:
+  using: composite
+  steps:
+    - run: |
+        CHANGELOG_FILE=$(find ${{ inputs.folder }} -type f -name 'CHANGELOG.md')
+        if [[ -z "$CHANGELOG_FILE" ]]; then
+          echo "CHANGELOG.md not found. Failing the workflow."
+          exit 1
+        fi
+
+        RELEASE_NAME="${{ inputs.release_name }}"
+        if [[ -z "$RELEASE_NAME" ]]; then
+          # Extract the latest title
+          LATEST_TITLE=$(grep -E '^## [0-9.]+' "$CHANGELOG_FILE" | head -n 1)
+          # Check if the latest title matches the expected pattern and extract the release name
+          if [[ "$LATEST_TITLE" =~ ^##\ [0-9.]+(\ -\ (.*))?\ \([0-9-]*\)$ ]]; then
+            RELEASE_NAME=${BASH_REMATCH[2]}
+          fi
+        fi
+
+        if [[ -z "$RELEASE_NAME" && "${{ inputs.auto_name_release }}" == "true" ]]; then
+          RELEASE_NAME="Release ${{ inputs.version }}"
+        fi
+
+        if [[ -z "$RELEASE_NAME" ]]; then
+          echo "Failed to extract or auto-generate release name from CHANGELOG.md. Failing the workflow."
+          exit 1
+        fi
+
+        RELEASE_NOTES=$(awk '/^## / { if (found) exit; if (!found) found=1; next } found && NF > 0 { print }' $CHANGELOG_FILE)
+        if [[ -z "$RELEASE_NOTES" ]]; then
+          echo "Failed to extract release notes from CHANGELOG.md. Failing the workflow."
+          exit 1
+        fi
+
+        echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
+        echo "$RELEASE_NOTES" > release_notes.txt
+        echo "RELEASE_NOTES_FILE=release_notes.txt" >> $GITHUB_ENV
+      shell: bash

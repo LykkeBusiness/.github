@@ -1,4 +1,4 @@
-name: 'Updates .csproj files with the new version'
+name: 'Update .csproj files with the new version'
 description: Updates all .csproj files with the new version'
 inputs:
   version:
