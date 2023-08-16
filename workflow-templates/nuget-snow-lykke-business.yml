@@ -82,46 +82,12 @@ jobs:
 
       - name: Push
         run: dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json --skip-duplicate
-        
-      # Extracts release name and release notes from CHANGELOG.md
-      - name: Extract release name and release notes
-        if: ${{ github.event.inputs.create_release == 'true' }}
-        run: |
-          CHANGELOG_FILE=$(find . -type f -name 'CHANGELOG.md')
-          if [[ -z "$CHANGELOG_FILE" ]]; then
-            echo "CHANGELOG.md not found. Failing the workflow."
-            exit 1
-          fi
 
-          RELEASE_NAME="${{ github.event.inputs.release_name }}"
-          if [[ -z "$RELEASE_NAME" ]]; then
-            echo "Release name not provided. Extracting from CHANGELOG.md"
-            # Extract the latest title
-            LATEST_TITLE=$(grep -E '^## [0-9.]+' "$CHANGELOG_FILE" | head -n 1)
-            # Check if the latest title matches the expected pattern
-            if [[ ! "$LATEST_TITLE" =~ ^##\ [0-9.]+(\ -\ (.*))?\ \([0-9-]*\)$ ]]; then
-              echo "Error: Latest title in $CHANGELOG_FILE does not follow the expected pattern"
-              exit 1
-            fi
-            # Extract the release name from the latest title, if present
-            RELEASE_NAME=${BASH_REMATCH[2]}
-          fi
-
-          if [[ -z "$RELEASE_NAME" ]]; then
-            echo "Failed to extract release name from CHANGELOG.md. Failing the workflow."
-            exit 1
-          fi
-
-          RELEASE_NOTES=$(awk '/^## / { if (found) exit; if (!found) found=1; next } found && NF > 0 { print }' $CHANGELOG_FILE)
-          if [[ -z "$RELEASE_NOTES" ]]; then
-            echo "Failed to extract release notes from CHANGELOG.md. Failing the workflow."
-            exit 1
-          fi
-
-          echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
-          echo "$RELEASE_NOTES" > release_notes.txt
-          echo "RELEASE_NOTES_FILE=release_notes.txt" >> $GITHUB_ENV
-
+      - name: Extract release notes from changelog file
+        uses: LykkeBusiness/.github/action/extract-notes-changelog@extract-notes-changelog-v1
+        with:
+          release_name: ${{ github.event.inputs.release_name }}
+      
       # Creates a GitHub release with the release name and release notes from CHANGELOG.md
       - name: Create GitHub Release
         if: ${{ github.event.inputs.create_release == 'true' }}
