@@ -1,17 +1,17 @@
-name: 'Injects the new version into CHANGELOG.md'
+name: "Injects the new version into CHANGELOG.md"
 description: Injects the new version into CHANGELOG.md by replacing placeholder'
 inputs:
   version:
     description: 'Version number without "v" (e.g. 1.0.0)'
     required: true
   folder:
-    description: 'Folder to search for CHANGELOG.md'
+    description: "Folder to search for CHANGELOG.md"
     required: false
-    default: '.'
+    default: "."
   deployment_tools:
-    description: 'Folder with deployment tools'
+    description: "Folder with deployment tools"
     required: false
-    default: './lykke.snow.deployment'
+    default: "./lykke.snow.deployment"
 runs:
   using: "composite"
   steps:
@@ -27,10 +27,11 @@ runs:
           echo "Found $COUNT instances of CHANGELOG.md. There must be exactly one. Failing the workflow."
           exit 1
         fi
-        
+
         source ${{ inputs.deployment_tools }}/tools/core/changelog.sh
         FILE=$(echo "$FILES" | head -n 1)
         TBD_REPLACED=$(replace_tbd_placeholder "$FILE" "${{ inputs.version }}")
+        DATE_REPLACED=$(replace_date_placeholder "$FILE" "$(date +'%Y-%m-%d')")
         if [[ $TBD_REPLACED -eq 0 ]]; then
           echo "CHANGELOG.md does not contain a placeholder for the new version. Failing the workflow."
           exit 1

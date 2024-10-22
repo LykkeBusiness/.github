@@ -1,6 +1,6 @@
 # Inject New Version into CHANGELOG.md Action
 
-This GitHub Action injects the new version into `CHANGELOG.md` by replacing a placeholder.
+This GitHub Action injects the new version into `CHANGELOG.md` by replacing a placeholder. It also updates `DATE` placeholder with the current date. 
 
 ## Inputs
 
@@ -37,5 +37,5 @@ Replace your-org/your-repo and version with the appropriate information for your
 
 ## Note
 This action expects exactly one CHANGELOG.md file to be present in the specified folder and that file to contain a placeholder `'[[TBD]]'` or `'[[tbd]]'` for the new version. The placeholder will be replaced with the specified version. If these conditions are not met, the action will fail the workflow. 
+In addition, th action searchs for the `[[DATE]]` or `[[date]]` placeholder in the file and replaces it with the current date. This one is optional.
 Please adjust the paths and any specific instructions as needed.
-
