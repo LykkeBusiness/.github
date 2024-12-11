@@ -1,0 +1,40 @@
+name: "SQL Naming Convention Check"
+description: "Validates SQL file naming conventions according to Lykke policy"
+inputs:
+  base-branch:
+    description: "Base branch name for comparison."
+    required: true
+    default: "master"
+  compare-branch:
+    description: "Branch name to compare with the base branch."
+    required: true
+outputs:
+  validation-result:
+    description: "List of files along with violated rule that do not follow the SQL naming convention."
+    value: ${{ steps.validate_sql_naming.outputs.validation-result }}
+runs:
+  using: "composite"
+  steps:
+    - name: Fetch base and compare branches
+      run: |
+        git fetch origin ${{ inputs.base-branch }} ${{ inputs.compare-branch }}
+      shell: bash
+
+    - name: Get list of changed SQL files
+      id: diff
+      run: |
+        git diff --name-only ${{ inputs.base-branch }}..${{ inputs.compare-branch }} | grep -E '\.sql$' > sql_files.txt || true
+        echo "sql_files=$(cat sql_files.txt)" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Validate SQL Naming Conventions
+      id: validate
+      run: ./validate_sql_naming.sh > validation_result.txt || true
+      env:
+        SQL_FILES: ${{ env.sql_files }}
+      shell: bash
+
+    - name: Set output
+      run: |
+        echo "validation-result=$(cat validation_result.txt)" >> $GITHUB_OUTPUT
+      shell: bash
