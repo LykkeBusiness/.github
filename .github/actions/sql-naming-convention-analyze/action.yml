@@ -1,0 +1,14 @@
+name: "SQL Naming Convention Analyze"
+description: "Analyze the SQL naming convention validation results."
+inputs:
+  validation-result:
+    description: "Base64-encoded validation result from the SQL naming convention check."
+    required: true
+outputs: {}
+runs:
+  using: "composite"
+  steps:
+    - name: Analyze validation result
+      run: |
+        "${GITHUB_ACTION_PATH}/scripts/analyze_sql_naming_result/analyze_sql_naming_result.sh" "${{ inputs.validation-result }}"
+      shell: bash
