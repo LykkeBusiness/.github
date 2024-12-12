@@ -38,7 +38,7 @@ runs:
     - name: Validate SQL Naming Conventions
       id: validate
       run: |
-        $GITHUB_ACTION_PATH/scripts/validate_sql_naming.sh sql_files.txt > validation_result.txt
+        $GITHUB_ACTION_PATH/scripts/validate_sql_naming/validate_sql_naming.sh sql_files.txt > validation_result.txt
       shell: bash
 
     - name: Set output
