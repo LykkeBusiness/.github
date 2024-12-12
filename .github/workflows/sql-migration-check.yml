@@ -44,5 +44,5 @@ jobs:
       - name: Run SQL naming convention check
         uses: LykkeBusiness/.github/.github/actions/sql-naming-convention-check@master
         with:
-          base-branch: origin/${{ inputs.base_branch }}
-          compare-branch: origin/${{ env.COMPARE_BRANCH }}
+          base-branch: ${{ inputs.base_branch }}
+          compare-branch: ${{ env.COMPARE_BRANCH }}
