@@ -43,7 +43,22 @@ jobs:
           echo "compare_branch=$compare_branch" >> $GITHUB_OUTPUT
 
       - name: Run SQL naming convention check
+        id: validate_sql_naming
         uses: LykkeBusiness/.github/.github/actions/sql-naming-convention-check@master
         with:
           base-branch: ${{ inputs.base_branch }}
           compare-branch: ${{ steps.set_comparison_branch.outputs.compare_branch }}
+
+      - name: Analyze SQL naming convention check result
+        run: |
+          # Decode the Base64-encoded result
+          validation_result=$(echo "${{ steps.validate_sql_naming.outputs.validation-result }}" | base64 --decode)
+
+          # Check if the result is non-empty
+          if [[ -n "$validation_result" ]]; then
+            echo "SQL Naming Convention Violations:"
+            echo "$validation_result" | while IFS= read -r line; do
+              echo "- $line"
+            done
+            exit 1
+          fi
