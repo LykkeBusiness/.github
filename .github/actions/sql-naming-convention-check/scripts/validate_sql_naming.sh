@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e -x
-
 if [[ $# -ne 1 ]]; then
   echo "Usage: $0 <sql_files_list.txt>"
   exit 1
