@@ -42,7 +42,7 @@ jobs:
           echo "COMPARE_BRANCH=$compare_branch" >> $GITHUB_ENV
 
       - name: Run SQL naming convention check
-        uses: ./.github/actions/sql-naming-convention-check@master
+        uses: LykkeBusiness/.github/.github/actions/sql-naming-convention-check@master
         with:
           base-branch: origin/${{ inputs.base_branch }}
           compare-branch: origin/${{ env.COMPARE_BRANCH }}
