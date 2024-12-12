@@ -23,12 +23,13 @@ runs:
     - name: Get list of changed SQL files
       id: diff
       run: |
-        git diff --name-only origin/${{ inputs.base-branch }} origin/${{ inputs.compare-branch }} | grep -E '\.sql$' > sql_files.txt || true
+        git diff --name-only origin/${{ inputs.base-branch }} origin/${{ inputs.compare-branch }} | grep -E '\.sql$' > sql_files.txt
       shell: bash
 
     - name: Validate SQL Naming Conventions
       id: validate
-      run: ./scripts/validate_sql_naming.sh sql_files.txt > validation_result.txt || true
+      run: |
+        $GITHUB_ACTION_PATH/scripts/validate_sql_naming.sh sql_files.txt > validation_result.txt
       shell: bash
 
     - name: Set output
