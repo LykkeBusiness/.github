@@ -36,13 +36,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set comparison branch
+        id: set_comparison_branch
         run: |
           compare_branch=${{ inputs.compare_branch || github.ref_name }}
           echo "Comparing $compare_branch against ${{ inputs.base_branch }}"
-          echo "COMPARE_BRANCH=$compare_branch" >> $GITHUB_ENV
+          echo "compare_branch=$compare_branch" >> $GITHUB_OUTPUT
 
       - name: Run SQL naming convention check
         uses: LykkeBusiness/.github/.github/actions/sql-naming-convention-check@master
         with:
           base-branch: ${{ inputs.base_branch }}
-          compare-branch: ${{ env.COMPARE_BRANCH }}
+          compare-branch: ${{ steps.set_comparison_branch.outputs.compare_branch }}
