@@ -10,7 +10,7 @@ inputs:
     required: true
 outputs:
   validation-result:
-    description: "List of files along with violated rule that do not follow the SQL naming convention."
+    description: "List of files along with violated rule that do not follow the SQL naming convention. Provided in base64 encoding."
     value: ${{ steps.validate_sql_naming.outputs.validation-result }}
 runs:
   using: "composite"
@@ -26,6 +26,14 @@ runs:
         git diff --name-only origin/${{ inputs.base-branch }} origin/${{ inputs.compare-branch }} | grep -E '\.sql$' > sql_files.txt
       shell: bash
 
+    - name: Empty check
+      run: |
+        if [[ ! -s sql_files.txt ]]; then
+          echo "No SQL files found to validate."
+          exit 0
+        fi
+      shell: bash
+
     - name: Validate SQL Naming Conventions
       id: validate
       run: |
@@ -34,5 +42,6 @@ runs:
 
     - name: Set output
       run: |
-        echo "validation-result=$(cat validation_result.txt)" >> $GITHUB_OUTPUT
+        encoded_result=$(base64 -w 0 validation_result.txt)
+        echo "validation-result=$encoded_result" >> $GITHUB_OUTPUT
       shell: bash
