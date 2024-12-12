@@ -11,7 +11,7 @@ inputs:
 outputs:
   validation-result:
     description: "List of files along with violated rule that do not follow the SQL naming convention. Provided in base64 encoding."
-    value: ${{ steps.validate_sql_naming.outputs.validation-result }}
+    value: ${{ steps.set_output.outputs.validation-result }}
 runs:
   using: "composite"
   steps:
@@ -27,6 +27,7 @@ runs:
       shell: bash
 
     - name: Empty check
+      id: empty_check
       run: |
         if [[ ! -s sql_files.txt ]]; then
           echo "No SQL files found to validate."
@@ -41,6 +42,7 @@ runs:
       shell: bash
 
     - name: Set output
+      id: set_output
       run: |
         encoded_result=$(base64 -w 0 validation_result.txt)
         echo "validation-result=$encoded_result" >> $GITHUB_OUTPUT
