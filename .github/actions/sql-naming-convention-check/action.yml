@@ -23,7 +23,7 @@ runs:
     - name: Get list of changed SQL files
       id: diff
       run: |
-        git diff --name-only ${{ inputs.base-branch }} ${{ inputs.compare-branch }} | grep -E '\.sql$' > sql_files.txt || true
+        git diff --name-only origin/${{ inputs.base-branch }} origin/${{ inputs.compare-branch }} | grep -E '\.sql$' > sql_files.txt || true
         echo "sql_files=$(cat sql_files.txt)" >> $GITHUB_ENV
       shell: bash
 
