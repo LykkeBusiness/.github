@@ -24,14 +24,11 @@ runs:
       id: diff
       run: |
         git diff --name-only origin/${{ inputs.base-branch }} origin/${{ inputs.compare-branch }} | grep -E '\.sql$' > sql_files.txt || true
-        echo "sql_files=$(cat sql_files.txt)" >> $GITHUB_ENV
       shell: bash
 
     - name: Validate SQL Naming Conventions
       id: validate
-      run: ./validate_sql_naming.sh > validation_result.txt || true
-      env:
-        SQL_FILES: ${{ env.sql_files }}
+      run: ./validate_sql_naming.sh sql_files.txt > validation_result.txt || true
       shell: bash
 
     - name: Set output
