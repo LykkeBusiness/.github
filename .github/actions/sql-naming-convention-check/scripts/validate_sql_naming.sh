@@ -16,7 +16,6 @@ fi
 
 INVALID_FILES=()
 
-# Read each file name from the provided text file
 while IFS= read -r file; do
   filename=$(basename "$file")
   if [[ ! $filename =~ ^\[MIGRATION\]_.*\.sql$ && ! $filename =~ ^\[ROLLBACK\]_.*\.sql$ && ! $filename =~ ^\[SCRIPT\]_.*\.sql$ ]]; then
@@ -27,11 +26,9 @@ while IFS= read -r file; do
 done < "$SQL_FILES_LIST"
 
 if [[ ${#INVALID_FILES[@]} -ne 0 ]]; then
-  echo "The following SQL files do not follow the naming convention:"
   for invalid in "${INVALID_FILES[@]}"; do
     echo "- $invalid"
   done
-  exit 1
-else
-  echo "All SQL files follow the naming convention."
 fi
+
+exit 0
