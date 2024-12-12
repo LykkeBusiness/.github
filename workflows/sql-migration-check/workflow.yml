@@ -8,6 +8,10 @@ on:
         required: true
         type: string
         default: "master"
+      compare_branch:
+        description: "Branch to compare against the base branch"
+        required: true
+        type: string
   workflow_dispatch:
     inputs:
       base_branch:
