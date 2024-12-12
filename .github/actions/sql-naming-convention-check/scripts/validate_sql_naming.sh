@@ -27,7 +27,7 @@ done < "$SQL_FILES_LIST"
 
 if [[ ${#INVALID_FILES[@]} -ne 0 ]]; then
   for invalid in "${INVALID_FILES[@]}"; do
-    echo "- $invalid"
+    echo "$invalid"
   done
 fi
 
