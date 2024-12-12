@@ -12,18 +12,19 @@ outputs:
   validation-result:
     description: "List of files along with violated rule that do not follow the SQL naming convention. Provided in base64 encoding."
     value: ${{ steps.set_output.outputs.validation-result }}
+
 runs:
   using: "composite"
   steps:
     - name: Fetch base and compare branches
       run: |
-        git fetch origin ${{ inputs.base-branch }} ${{ inputs.compare-branch }}
+        git fetch origin "${{ inputs.base-branch }}" "${{ inputs.compare-branch }}"
       shell: bash
 
     - name: Get list of changed SQL files
       id: diff
       run: |
-        git diff --name-only origin/${{ inputs.base-branch }} origin/${{ inputs.compare-branch }} | grep -E '\.sql$' > sql_files.txt
+        git diff --name-only origin/${{ inputs.base-branch }}...origin/${{ inputs.compare-branch }} | grep -E '\.sql$' > sql_files.txt || true
       shell: bash
 
     - name: Empty check
@@ -31,6 +32,8 @@ runs:
       run: |
         if [[ ! -s sql_files.txt ]]; then
           echo "No SQL files found to validate."
+          # Set empty validation result
+          echo "validation-result=" >> $GITHUB_OUTPUT
           exit 0
         fi
       shell: bash
@@ -38,12 +41,18 @@ runs:
     - name: Validate SQL Naming Conventions
       id: validate
       run: |
-        $GITHUB_ACTION_PATH/scripts/validate_sql_naming/validate_sql_naming.sh sql_files.txt > validation_result.txt
+        "${GITHUB_ACTION_PATH}/scripts/validate_sql_naming/validate_sql_naming.sh" sql_files.txt > validation_result.txt
       shell: bash
 
     - name: Set output
       id: set_output
       run: |
-        encoded_result=$(base64 -w 0 validation_result.txt)
+        # If validation_result.txt exists and is not empty, encode it.
+        if [[ -s validation_result.txt ]]; then
+          encoded_result=$(base64 -w0 validation_result.txt)
+        else
+          # If no violations found, set an empty result.
+          encoded_result=""
+        fi
         echo "validation-result=$encoded_result" >> $GITHUB_OUTPUT
       shell: bash
