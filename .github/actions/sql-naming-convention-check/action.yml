@@ -28,7 +28,7 @@ runs:
 
     - name: Validate SQL Naming Conventions
       id: validate
-      run: ./validate_sql_naming.sh sql_files.txt > validation_result.txt || true
+      run: ./scripts/validate_sql_naming.sh sql_files.txt > validation_result.txt || true
       shell: bash
 
     - name: Set output
