@@ -10,27 +10,23 @@ inputs:
     required: true
 outputs:
   validation-result:
-    description: "List of files along with violated rule that do not follow the SQL naming convention. Provided in base64 encoding."
-    value: ${{ steps.set_output.outputs.validation-result }}
+    description: "List of files (base64-encoded) that violate the SQL naming convention."
+    value: ${{ steps.encode_result.outputs.validation-result }}
 
 runs:
   using: "composite"
   steps:
-    - name: Fetch base and compare branches
+    - name: Get changed SQL files
+      id: get_sql_files
       run: |
-        git fetch origin "${{ inputs.base-branch }}" "${{ inputs.compare-branch }}"
+        "${GITHUB_ACTION_PATH}/scripts/get_changed_sql_files/get_changed_sql_files.sh" "${{ inputs.base-branch }}" "${{ inputs.compare-branch }}"
       shell: bash
 
-    - name: Get list of changed SQL files
-      id: diff
-      run: |
-        git diff --name-only origin/${{ inputs.base-branch }}...origin/${{ inputs.compare-branch }} | grep -E '\.sql$' > sql_files.txt || true
-      shell: bash
-
-    - name: Empty check
+    - name: Check if any SQL files were changed
+      if: ${{ always() }}
       id: empty_check
       run: |
-        if [[ ! -s sql_files.txt ]]; then
+        if [ ! -f sql_files.txt ] || [! -s sql_files.txt]; then
           echo "No SQL files found to validate."
           # Set empty validation result
           echo "validation-result=" >> $GITHUB_OUTPUT
@@ -38,21 +34,14 @@ runs:
         fi
       shell: bash
 
-    - name: Validate SQL Naming Conventions
+    - name: Validate SQL naming conventions
       id: validate
       run: |
         "${GITHUB_ACTION_PATH}/scripts/validate_sql_naming/validate_sql_naming.sh" sql_files.txt > validation_result.txt
       shell: bash
 
-    - name: Set output
-      id: set_output
+    - name: Encode and set result
+      id: encode_result
       run: |
-        # If validation_result.txt exists and is not empty, encode it.
-        if [[ -s validation_result.txt ]]; then
-          encoded_result=$(base64 -w0 validation_result.txt)
-        else
-          # If no violations found, set an empty result.
-          encoded_result=""
-        fi
-        echo "validation-result=$encoded_result" >> $GITHUB_OUTPUT
+        "${GITHUB_ACTION_PATH}/scripts/encode_result/encode_result.sh" validation_result.txt >> $GITHUB_OUTPUT
       shell: bash
