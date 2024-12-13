@@ -1,47 +1,66 @@
 # SQL Naming Convention Validation Script
 
-This Bash script checks a list of SQL files to ensure that their filenames follow a specified naming convention. It validates whether each SQL file starts with one of the defined prefixes (`[MIGRATION]_`, `[ROLLBACK]_`, or `[SCRIPT]_`) and that there is a meaningful name following the prefix (i.e., not just the prefix and `.sql`).
+This script validates that the names of SQL files adhere to a specified naming convention. It checks each file listed in a given text file and identifies any violations, such as missing required prefixes or lacking a descriptive name after the prefix.
 
-## Features
+## Naming Convention
 
-- **Prefix Validation:** Ensures each file name starts with a valid prefix.
-- **Naming Check:** Verifies that the file name following the prefix is not empty.
+Each SQL file must start with one of the following prefixes:
 
-## Requirements
+- `[MIGRATION]_`
+- `[ROLLBACK]_`
+- `[SCRIPT]_`
 
-- **Bash Shell:** The script is POSIX-compliant and tested in Bash environments.
-- **GitHub Actions (Optional):** Can be used within CI workflows for automated checks.
+Additionally, the file name after the prefix must be meaningful. For instance:
+
+- **Valid**: `[MIGRATION]_create_users_table.sql`
+- **Invalid**: `[MIGRATION]_.sql` (no descriptive name after prefix)
+- **Invalid**: `create_users_table.sql` (missing prefix)
+- **Invalid**: `MIGRATION_create_users_table.sql` (prefix not enclosed in brackets)
 
 ## Usage
 
-1. Prepare a text file listing the SQL files you want to validate (one file path per line). For example:
+1. **Prepare the File List**  
+   Create a text file that lists all SQL files to be checked, one file path per line. For example:
    ```txt
    /path/to/changes/[MIGRATION]_add_users_table.sql
    /path/to/changes/[ROLLBACK]_remove_orders_table.sql
    /path/to/changes/[SCRIPT]_populate_data.sql
    ```
 
-2. Run the script:
+2. **Run the Script**  
+   Pass the file containing the list of SQL files as an argument to the script:
    ```bash
    ./validate_sql_naming.sh sql_files_list.txt
    ```
 
-3. If all files comply with the naming convention, the script will produce no output and exit with status 0. If any files fail the checks, it will print the violations and exit with status 0 (non-zero exit codes can be incorporated as needed).
+3. **Interpret the Results**  
+   - If all files comply with the naming convention, the script produces no output and exits with status 0.
+   - If any files violate the naming convention, the script prints each violation line-by-line. For example:
+     ```
+     /path/to/changes/create_users_table.sql: Does not start with a valid prefix ([MIGRATION]_, [ROLLBACK]_, or [SCRIPT]_).
+     /path/to/changes/[MIGRATION]_.sql: Contains only the prefix without a specific name.
+     ```
+   
+   By default, the script exits with status code 0 even if there are violations. You can modify the script if you want it to return a non-zero exit code when violations occur.
+
+## Parameters
+
+- **Required**:  
+  - `sql_files_list.txt`: A file containing the paths of SQL files to validate, one file path per line.
 
 ## Exit Codes
 
-- **0:** Script executed successfully.  
-  - **Note:** Even if some files fail the checks, the script still exits with 0 by default. You can modify the script to exit with a non-zero code if naming violations occur.
-- **1:** Script encountered an error (e.g., missing input file, invalid file paths).
+- **0**: The script completed without encountering an error.  
+  - Note: Violations in naming convention do **not** change the exit code by default; they only produce output. You can easily update the script to exit non-zero if violations are found.
 
-## Examples
+- **1**: The script failed due to a usage error, such as an incorrect number of arguments or a missing input file.
 
-**Valid Files:**
-- `[MIGRATION]_create_users_table.sql`
-- `[ROLLBACK]_remove_users_index.sql`
-- `[SCRIPT]_update_data_for_reporting.sql`
+## Example
 
-**Invalid Files:**
-- `create_users_table.sql` (missing prefix)
-- `[MIGRATION]_.sql` (missing descriptive name after prefix)
-- `MIGRATION_create_users_table.sql` (incorrect format, missing brackets around prefix)
+```bash
+# Assuming sql_files_list.txt contains the paths of SQL files.
+./validate_sql_naming.sh sql_files_list.txt
+```
+
+- If violations exist, they are printed to stdout.
+- If no violations are found, the script prints nothing and exits with status 0.
