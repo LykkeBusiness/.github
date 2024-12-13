@@ -1,0 +1,25 @@
+name: "SQL Naming Convention Analyze"
+description: "Analyze the SQL naming convention validation results."
+inputs:
+  validation-result:
+    description: "Base64-encoded validation result from the SQL naming convention check."
+    required: true
+outputs: {}
+runs:
+  using: "composite"
+  steps:
+    - name: Analyze validation result
+      run: |
+        # Decode the Base64-encoded result
+        validation_result=$(echo "${{ inputs.validation-result }}" | base64 --decode)
+
+        # Check if the result is non-empty
+        if [[ -n "$validation_result" ]]; then
+          echo "SQL Naming Convention Violations:"
+          echo "$validation_result" | while IFS= read -r line; do
+            echo "- $line"
+          done
+          # Exit with non-zero code to fail the job
+          exit 1
+        fi
+      shell: bash

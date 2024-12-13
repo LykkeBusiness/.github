@@ -1,4 +1,4 @@
-name: SQL Migrations Check
+name: SQL Check
 
 on:
   workflow_call:
@@ -25,7 +25,7 @@ on:
         type: string
 
 jobs:
-  validate_migrations:
+  sql_naming_convention_check:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -50,15 +50,6 @@ jobs:
           compare-branch: ${{ steps.set_comparison_branch.outputs.compare_branch }}
 
       - name: Analyze SQL naming convention check result
-        run: |
-          # Decode the Base64-encoded result
-          validation_result=$(echo "${{ steps.validate_sql_naming.outputs.validation-result }}" | base64 --decode)
-
-          # Check if the result is non-empty
-          if [[ -n "$validation_result" ]]; then
-            echo "SQL Naming Convention Violations:"
-            echo "$validation_result" | while IFS= read -r line; do
-              echo "- $line"
-            done
-            exit 1
-          fi
+        uses: LykkeBusiness/.github/.github/actions/sql-naming-convention-analyze@master
+        with:
+          validation-result: ${{ steps.validate_sql_naming.outputs.validation-result }}
