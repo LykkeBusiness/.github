@@ -50,6 +50,7 @@ jobs:
           compare-branch: ${{ steps.set_comparison_branch.outputs.compare_branch }}
 
       - name: Analyze SQL naming convention check result
+        id: analyze_sql_naming_result
         uses: LykkeBusiness/.github/.github/actions/sql-naming-convention-analyze@master
         with:
           validation-result: ${{ steps.validate_sql_naming.outputs.validation-result }}
