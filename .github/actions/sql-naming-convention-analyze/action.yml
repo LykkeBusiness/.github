@@ -10,5 +10,5 @@ runs:
   steps:
     - name: Analyze validation result
       run: |
-        "${GITHUB_ACTION_PATH}/scripts/analyze_sql_naming_result.sh" "${{ inputs.validation-result }}"
+        "${GITHUB_ACTION_PATH}/scripts/analyze_sql_naming_result/analyze_sql_naming_result.sh" "${{ inputs.validation-result }}"
       shell: bash
