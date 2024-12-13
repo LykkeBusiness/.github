@@ -26,12 +26,7 @@ runs:
       if: ${{ always() }}
       id: empty_check
       run: |
-        if [ ! -f sql_files.txt ] || [! -s sql_files.txt]; then
-          echo "No SQL files found to validate."
-          # Set empty validation result
-          echo "validation-result=" >> $GITHUB_OUTPUT
-          exit 0
-        fi
+        "${GITHUB_ACTION_PATH}/scripts/check_empty_sql_files/check_empty_sql_files.sh"
       shell: bash
 
     - name: Validate SQL naming conventions
