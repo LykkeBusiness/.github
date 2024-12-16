@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+set -Eeuox pipefail
 
 if [[ $# -ne 1 ]]; then
   echo "Usage: $0 <sql_files_list.txt>"
@@ -18,20 +18,20 @@ while IFS= read -r file; do
   filename=$(basename "$file")
 
   case "$filename" in
-    "[MIGRATION]_"*.sql | "[ROLLBACK]_"*.sql | "[SCRIPT]_"*.sql)
-      # The pattern below matches if prefix is present but there's nothing before .sql.
-      if [[ $filename =~ ^\[[A-Z]+\]_\.sql$ ]]; then
-        INVALID_FILES+=("$file: Contains only the prefix without a specific name.")
-      fi
-      ;;
-    # Anything else is invalid
-    *)
-      INVALID_FILES+=("$file: Does not start with a valid prefix ([MIGRATION]_, [ROLLBACK]_, or [SCRIPT]_).")
-      ;;
+  "[MIGRATION]_"*.sql | "[ROLLBACK]_"*.sql | "[SCRIPT]_"*.sql)
+    # The pattern below matches if prefix is present but there's nothing before .sql.
+    if [[ $filename =~ ^\[[A-Z]+\]_\.sql$ ]]; then
+      INVALID_FILES+=("$file: Contains only the prefix without a specific name.")
+    fi
+    ;;
+  # Anything else is invalid
+  *)
+    INVALID_FILES+=("$file: Does not start with a valid prefix ([MIGRATION]_, [ROLLBACK]_, or [SCRIPT]_).")
+    ;;
   esac
-done < "$SQL_FILES_LIST"
+done <"$SQL_FILES_LIST"
 
-if (( ${#INVALID_FILES[@]} > 0 )); then
+if ((${#INVALID_FILES[@]} > 0)); then
   printf '%s\n' "${INVALID_FILES[@]}"
 fi
 
