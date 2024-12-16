@@ -21,10 +21,15 @@ while IFS= read -r file; do
     migration_name=${filename#[MIGRATION]_}
     migration_name=${migration_name%.sql}
 
+    echo "Checking for rollback file for migration: $migration_name"
+
     rollback_file=$(find . -type f -name "[ROLLBACK]_${migration_name}.sql" -print -quit)
 
     if [[ -z "$rollback_file" ]]; then
+        echo "No rollback file found for migration: $file"
         INVALID_FILES+=("$file")
+    else
+        echo "Found rollback file: $rollback_file for migration: $file"
     fi
 done <"$MIGRATION_SCRIPTS_LIST"
 
