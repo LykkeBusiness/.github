@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Eeuox pipefail
+set -Eeuo pipefail
 
 if [[ $# -ne 1 ]]; then
   echo "Usage: $0 <sql_files_list.txt>"
