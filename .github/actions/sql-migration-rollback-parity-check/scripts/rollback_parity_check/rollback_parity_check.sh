@@ -23,7 +23,7 @@ while IFS= read -r file; do
 
     echo "Checking for rollback file for migration: $migration_name"
 
-    rollback_file=$(find . -type f -name "[ROLLBACK]_${migration_name}.sql" -print -quit)
+    rollback_file=$(find . -type f -name "\[ROLLBACK\]_${migration_name}.sql" -print -quit)
 
     if [[ -z "$rollback_file" ]]; then
         echo "No rollback file found for migration: $file"
