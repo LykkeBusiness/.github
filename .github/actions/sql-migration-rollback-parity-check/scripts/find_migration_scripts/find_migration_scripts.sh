@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Eeuox pipefail
+set -Eeuo pipefail
 
 # Directory to search for SQL scripts. Default is the current directory.
 SEARCH_DIR=${1:-.}
@@ -10,4 +10,4 @@ if [ -z "$MIGRATION_SCRIPTS" ]; then
   exit 0
 fi
 
-echo "$MIGRATION_SCRIPTS" > migration_scripts.txt
+echo "$MIGRATION_SCRIPTS" >migration_scripts.txt

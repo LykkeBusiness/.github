@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Eeuox pipefail
+set -Eeuo pipefail
 
 if [ ! -f migration_scripts.txt ] || [ ! -s migration_scripts.txt ]; then
     echo "No migration script files found."
