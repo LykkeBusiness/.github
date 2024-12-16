@@ -54,3 +54,9 @@ jobs:
         uses: LykkeBusiness/.github/.github/actions/sql-naming-convention-analyze@master
         with:
           validation-result: ${{ steps.validate_sql_naming.outputs.validation-result }}
+
+      - name: Run SQL migration-rollback parity check
+        id: validate_sql_migration_rollback_parity
+        uses: LykkeBusiness/.github/.github/actions/sql-migration-rollback-parity-check@master
+        with:
+          target-branch: ${{ steps.set_comparison_branch.outputs.compare_branch }}
