@@ -10,4 +10,4 @@ if [ -z "$MIGRATION_SCRIPTS" ]; then
   exit 0
 fi
 
-echo "$MIGRATION_SCRIPTS" >migration_scripts.txt
+echo "$MIGRATION_SCRIPTS" > migration_scripts.txt
