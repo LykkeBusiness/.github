@@ -28,7 +28,7 @@ runs:
     - name: Check for corresponding rollback scripts
       id: rollback_check
       run: |
-        "${GITHUB_ACTION_PATH}/scripts/rollback_parity_check/rollback_parity_check.sh" migration_files.txt > validation_result.txt
+        "${GITHUB_ACTION_PATH}/scripts/rollback_parity_check/rollback_parity_check.sh" migration_scripts.txt > validation_result.txt
       shell: bash
 
     - name: Encode and set result
