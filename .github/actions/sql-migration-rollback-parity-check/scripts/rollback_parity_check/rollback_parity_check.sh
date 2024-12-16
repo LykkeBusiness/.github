@@ -6,6 +6,8 @@ if [[ $# -ne 1 ]]; then
     exit 1
 fi
 
+ls -la
+
 MIGRATION_SCRIPTS_LIST=$1
 if [[ ! -f $MIGRATION_SCRIPTS_LIST ]]; then
     echo "Error: File '$MIGRATION_SCRIPTS_LIST' does not exist."
