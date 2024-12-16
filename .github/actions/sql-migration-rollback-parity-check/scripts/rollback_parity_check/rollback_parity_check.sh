@@ -18,7 +18,7 @@ while IFS= read -r file; do
     [[ -z "$file" ]] && continue
 
     filename=$(basename "$file")
-    migration_name=${filename#[MIGRATION]_}
+    migration_name=${filename#\[MIGRATION\]_}
     migration_name=${migration_name%.sql}
 
     echo "Checking for rollback file for migration: $migration_name"
