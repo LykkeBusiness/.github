@@ -27,6 +27,7 @@ runs:
 
     - name: Check for corresponding rollback scripts
       id: rollback_check
+      if: steps.empty_check.outputs.migration-scripts-changed == 'true'
       run: |
         "${GITHUB_ACTION_PATH}/scripts/rollback_parity_check/rollback_parity_check.sh" migration_scripts.txt > validation_result.txt
       shell: bash
