@@ -1,6 +1,6 @@
-# SQL Migration-Rollback Parity Analyze GitHub Action
+# EF Core Migration-Rollback Parity Analyze GitHub Action
 
-This GitHub Action is designed to analyze the results of a migration-rollback parity validation step. It takes a base64-encoded string that represents any parity violations found between your migration and rollback SQL files and:
+This GitHub Action is designed to analyze the results of a EF Core migration-rollback parity validation step. It takes a base64-encoded string that represents any parity violations found between your migration and rollback SQL files and:
 
 1. Decodes the results.
 2. Prints out a human-readable list of violations if any are present.
@@ -27,24 +27,24 @@ Below is an example of how you might integrate this action into a workflow after
 
 ```yaml
 jobs:
-  migration_rollback_parity_check:
+  ef-migration_rollback_parity_check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run Migration-Rollback Parity Check
-        id: validate_migration_rollback
+      - name: Run EF Core Migration-Rollback Parity Check
+        id: validate_ef_migration_rollback
         # This step would be your own action or script that produces the base64-encoded validation result.
         run: |
           # Example: produce parity_result.txt with violations, then encode it
-          echo "[MIGRATION]_migration1.sql" > parity_result.txt
+          echo "20241212141210_AddOrderTable.cs" > parity_result.txt
           echo "validation-result=$(base64 -w0 parity_result.txt)" >> $GITHUB_OUTPUT
 
       - name: Analyze Migration-Rollback Parity Results
-        uses: ./.github/actions/sql-migration-rollback-parity-analyze
+        uses: ./.github/actions/ef-migration-rollback-parity-analyze
         with:
-          validation-result: ${{ steps.validate_migration_rollback.outputs.validation-result }}
+          validation-result: ${{ steps.validate_ef_migration_rollback.outputs.validation-result }}
 ```
 
 If violations are found, the action prints them and fails the job. If none are found, the action completes successfully and the workflow continues.
