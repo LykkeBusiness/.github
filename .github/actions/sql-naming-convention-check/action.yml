@@ -31,7 +31,7 @@ runs:
 
     - name: Validate SQL naming conventions
       id: validate
-      if: steps.empty_check.outputs.sql-files-changed == 'true'
+      if: ${{ steps.empty_check.outputs.sql-files-changed == 'true' }}
       run: |
         "${GITHUB_ACTION_PATH}/scripts/validate_sql_naming/validate_sql_naming.sh" sql_files.txt > validation_result.txt
       shell: bash
