@@ -22,12 +22,12 @@ runs:
         "${GITHUB_ACTION_PATH}/scripts/find_ef_migration_files/find_ef_migration_files.sh"
       shell: bash
 
-    # - name: Check if any migration script files found
-    #   if: ${{ always() }}
-    #   id: empty_check
-    #   run: |
-    #     "${GITHUB_ACTION_PATH}/scripts/check_empty_migration_scripts/check_empty_migration_scripts.sh"
-    #   shell: bash
+    - name: Check if any EF Core migration files found
+      if: ${{ always() }}
+      id: empty_check
+      run: |
+        "${GITHUB_ACTION_PATH}/scripts/check_empty_ef_migration_files/check_empty_ef_migration_files.sh"
+      shell: bash
 
     # - name: Check for corresponding rollback scripts
     #   id: rollback_check
