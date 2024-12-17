@@ -19,7 +19,7 @@ runs:
     - name: Find EF Core migrations
       id: find_ef_migration_files
       run: |
-        "${GITHUB_ACTION_PATH}/scripts/find_ef_migration_files/find_ef_migration_files.sh"
+        "${GITHUB_ACTION_PATH}/scripts/find_ef_migration_files/find_ef_migration_files.sh" "${{ inputs.base-branch }}" "${{ inputs.compare-branch }}"
       shell: bash
 
     - name: Check if any EF Core migration files found
