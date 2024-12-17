@@ -5,7 +5,7 @@ This script reads a given results file (e.g., containing validation errors) and 
 ## Usage
 
 ```bash
-./encode_validation_result.sh <RESULT_FILE>
+./encode_result.sh <RESULT_FILE>
 ```
 
 **Parameters:**
@@ -36,7 +36,7 @@ This script reads a given results file (e.g., containing validation errors) and 
 
 ```bash
 # If 'validation_result.txt' contains some violations:
-./encode_validation_result.sh validation_result.txt
+./encode_result.sh validation_result.txt
 # Outputs something like:
 # validation-result=QmFzZTY0IEVuY29kZWQgUmVzdWx0cw==
 ```
