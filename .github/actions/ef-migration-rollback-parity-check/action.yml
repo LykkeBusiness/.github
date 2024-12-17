@@ -1,0 +1,43 @@
+name: "EF Core Migration-Rollback Parity Check"
+description: "Check if EF Core migration and rollback scripts are in parity."
+inputs:
+  base-branch:
+    description: "Base branch name for comparison."
+    required: true
+    default: "master"
+  compare-branch:
+    description: "Branch name to compare with the base branch."
+    required: true
+outputs:
+  validation-result:
+    description: "List of EF Core migration files (base64-encoded) that do not have a corresponding rollback script."
+    value: ${{ steps.encode_result.outputs.validation-result }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Find EF Core migrations
+      id: find_ef_migration_files
+      run: |
+        "${GITHUB_ACTION_PATH}/scripts/find_ef_migration_files/find_ef_migration_files.sh"
+      shell: bash
+
+    # - name: Check if any migration script files found
+    #   if: ${{ always() }}
+    #   id: empty_check
+    #   run: |
+    #     "${GITHUB_ACTION_PATH}/scripts/check_empty_migration_scripts/check_empty_migration_scripts.sh"
+    #   shell: bash
+
+    # - name: Check for corresponding rollback scripts
+    #   id: rollback_check
+    #   if: ${{ steps.empty_check.outputs.migration-scripts-changed == 'true' }}
+    #   run: |
+    #     "${GITHUB_ACTION_PATH}/scripts/rollback_parity_check/rollback_parity_check.sh" migration_scripts.txt > validation_result.txt
+    #   shell: bash
+
+    # - name: Encode and set result
+    #   id: encode_result
+    #   run: |
+    #     "${GITHUB_ACTION_PATH}/scripts/encode_result/encode_result.sh" validation_result.txt >> $GITHUB_OUTPUT
+    #   shell: bash
