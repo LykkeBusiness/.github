@@ -29,12 +29,12 @@ runs:
         "${GITHUB_ACTION_PATH}/scripts/check_empty_ef_migration_files/check_empty_ef_migration_files.sh"
       shell: bash
 
-    # - name: Check for corresponding rollback scripts
-    #   id: rollback_check
-    #   if: ${{ steps.empty_check.outputs.migration-scripts-changed == 'true' }}
-    #   run: |
-    #     "${GITHUB_ACTION_PATH}/scripts/rollback_parity_check/rollback_parity_check.sh" migration_scripts.txt > validation_result.txt
-    #   shell: bash
+    - name: Check for corresponding EF Core rollback scripts
+      id: ef_rollback_check
+      if: ${{ steps.empty_check.outputs.ef-migration-files-changed == 'true' }}
+      run: |
+        "${GITHUB_ACTION_PATH}/scripts/ef_rollback_parity_check/ef_rollback_parity_check.sh" ef_migration_files.txt > validation_result.txt
+      shell: bash
 
     # - name: Encode and set result
     #   id: encode_result
