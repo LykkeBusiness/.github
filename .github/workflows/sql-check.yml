@@ -66,3 +66,10 @@ jobs:
         uses: LykkeBusiness/.github/.github/actions/sql-migration-rollback-parity-analyze@master
         with:
           validation-result: ${{ steps.validate_sql_migration_rollback_parity.outputs.validation-result }}
+
+      - name: Run EF Core migration-rollback parity check
+        id: validate_ef_migration_rollback_parity
+        uses: LykkeBusiness/.github/.github/actions/ef-migration-rollback-parity-check@master
+        with:
+          base-branch: ${{ inputs.base_branch }}
+          compare-branch: ${{ steps.set_comparison_branch.outputs.compare_branch }}
