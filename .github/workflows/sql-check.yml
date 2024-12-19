@@ -25,7 +25,27 @@ on:
         type: string
 
 jobs:
+  set_comparison_branch:
+    runs-on: ubuntu-latest
+    outputs:
+      compare_branch: ${{ steps.set_comparison_branch.outputs.compare_branch }}
+    steps:
+      - name: Set comparison branch
+        id: set_comparison_branch
+        run: |
+          compare_branch=${{ inputs.compare_branch || github.ref_name }}
+          echo "Comparing $compare_branch against ${{ inputs.base_branch }}"
+          echo "compare_branch=$compare_branch" >> $GITHUB_OUTPUT
+
   sql_naming_convention_check:
+    needs: set_comparison_branch
+    uses: ./.github/workflows/sql-naming-check.yml
+    with:
+      base_branch: ${{ inputs.base_branch }}
+      compare_branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
+
+  sql_check:
+    needs: set_comparison_branch
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -35,31 +55,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set comparison branch
-        id: set_comparison_branch
-        run: |
-          compare_branch=${{ inputs.compare_branch || github.ref_name }}
-          echo "Comparing $compare_branch against ${{ inputs.base_branch }}"
-          echo "compare_branch=$compare_branch" >> $GITHUB_OUTPUT
-
-      - name: Run SQL naming convention check
-        id: validate_sql_naming
-        uses: LykkeBusiness/.github/.github/actions/sql-naming-convention-check@master
-        with:
-          base-branch: ${{ inputs.base_branch }}
-          compare-branch: ${{ steps.set_comparison_branch.outputs.compare_branch }}
-
-      - name: Analyze SQL naming convention check result
-        id: analyze_sql_naming_result
-        uses: LykkeBusiness/.github/.github/actions/sql-naming-convention-analyze@master
-        with:
-          validation-result: ${{ steps.validate_sql_naming.outputs.validation-result }}
-
       - name: Run SQL migration-rollback parity check
         id: validate_sql_migration_rollback_parity
         uses: LykkeBusiness/.github/.github/actions/sql-migration-rollback-parity-check@master
         with:
-          target-branch: ${{ steps.set_comparison_branch.outputs.compare_branch }}
+          target-branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
 
       - name: Analyze SQL migration-rollback parity check result
         id: analyze_sql_migration_rollback_parity_result
@@ -72,7 +72,7 @@ jobs:
         uses: LykkeBusiness/.github/.github/actions/ef-migration-rollback-parity-check@master
         with:
           base-branch: ${{ inputs.base_branch }}
-          compare-branch: ${{ steps.set_comparison_branch.outputs.compare_branch }}
+          compare-branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
       
       - name: Analyze EF Core migration-rollback parity check result
         id: analyze_ef_migration_rollback_parity_result
