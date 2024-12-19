@@ -39,7 +39,6 @@ jobs:
           echo "compare_branch=$compare_branch" >> $GITHUB_OUTPUT
 
   sql_naming_convention_check:
-    name: SQL Naming Convention Check
     needs: set_comparison_branch
     uses: LykkeBusiness/.github/.github/workflows/sql-naming-check.yml@master
     with:
@@ -47,14 +46,12 @@ jobs:
       compare_branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
 
   sql_migration_rollback_parity_check:
-    name: SQL Migration Rollback Parity Check
     needs: [set_comparison_branch, sql_naming_convention_check]
     uses: LykkeBusiness/.github/.github/workflows/sql-migration-rollback-parity-check.yml@master
     with:
       target_branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
 
   sql_ef_migration_rollback_parity_check:
-    name: EF Migration Rollback Parity Check
     needs: [set_comparison_branch, sql_naming_convention_check]
     uses: LykkeBusiness/.github/.github/workflows/sql-ef-migration-rollback-parity-check.yml@master
     with:

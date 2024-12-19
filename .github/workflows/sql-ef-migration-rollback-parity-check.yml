@@ -15,6 +15,7 @@ on:
 
 jobs:
   sql_ef_migration_rollback_parity_check:
+    name: EF Core Migration-Rollback Parity Check
     runs-on: ubuntu-latest
     permissions:
       contents: read

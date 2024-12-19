@@ -10,6 +10,7 @@ on:
 
 jobs:
   sql_migration_rollback_parity_check:
+    name: SQL Migration-Rollback Parity Check
     runs-on: ubuntu-latest
     permissions:
       contents: read

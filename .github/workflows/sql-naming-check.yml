@@ -15,6 +15,7 @@ on:
 
 jobs:
   sql_naming_convention_check:
+    name: SQL Naming Convention Check
     runs-on: ubuntu-latest
     permissions:
       contents: read
