@@ -45,13 +45,13 @@ jobs:
       compare_branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
 
   sql_migration_rollback_parity_check:
-    needs: set_comparison_branch
+    needs: [set_comparison_branch, sql_naming_convention_check]
     uses: LykkeBusiness/.github/.github/workflows/sql-migration-rollback-parity-check.yml@master
     with:
       target_branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
 
   sql_ef_migration_rollback_parity_check:
-    needs: set_comparison_branch
+    needs: [set_comparison_branch, sql_naming_convention_check]
     uses: LykkeBusiness/.github/.github/workflows/sql-ef-migration-rollback-parity-check.yml@master
     with:
       base_branch: ${{ inputs.base_branch }}
