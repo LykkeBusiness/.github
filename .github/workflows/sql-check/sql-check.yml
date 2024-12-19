@@ -39,7 +39,7 @@ jobs:
 
   sql_naming_convention_check:
     needs: set_comparison_branch
-    uses: ./.github/workflows/sql-naming-check.yml
+    uses: LykkeBusiness/.github/.github/workflows/sql-naming-check/sql-naming-check.yml
     with:
       base_branch: ${{ inputs.base_branch }}
       compare_branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
