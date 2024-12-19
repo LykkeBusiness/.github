@@ -50,26 +50,9 @@ jobs:
     with:
       target_branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
 
-  sql_check:
+  sql_ef_migration_rollback_parity_check:
     needs: set_comparison_branch
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Run EF Core migration-rollback parity check
-        id: validate_ef_migration_rollback_parity
-        uses: LykkeBusiness/.github/.github/actions/ef-migration-rollback-parity-check@master
-        with:
-          base-branch: ${{ inputs.base_branch }}
-          compare-branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
-      
-      - name: Analyze EF Core migration-rollback parity check result
-        id: analyze_ef_migration_rollback_parity_result
-        uses: LykkeBusiness/.github/.github/actions/ef-migration-rollback-parity-analyze@master
-        with:
-          validation-result: ${{ steps.validate_ef_migration_rollback_parity.outputs.validation-result }}
+    uses: LykkeBusiness/.github/.github/workflows/sql-ef-migration-rollback-parity-check.yml@master
+    with:
+      base_branch: ${{ inputs.base_branch }}
+      compare_branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}

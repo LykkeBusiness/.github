@@ -1,0 +1,38 @@
+name: EF Core Migration Rollback Parity Check
+
+on:
+  workflow_call:
+    inputs:
+      base_branch:
+        description: "Base branch name for comparison."
+        required: true
+        default: "master"
+        type: string
+      compare_branch:
+        description: "Branch name to compare with the base branch."
+        required: true
+        type: string
+
+jobs:
+  sql_ef_migration_rollback_parity_check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run EF Core migration-rollback parity check
+        id: validate_ef_migration_rollback_parity
+        uses: LykkeBusiness/.github/.github/actions/ef-migration-rollback-parity-check@master
+        with:
+          base-branch: ${{ inputs.base_branch }}
+          compare-branch: ${{ inputs.compare_branch }}
+      
+      - name: Analyze EF Core migration-rollback parity check result
+        id: analyze_ef_migration_rollback_parity_result
+        uses: LykkeBusiness/.github/.github/actions/ef-migration-rollback-parity-analyze@master
+        with:
+          validation-result: ${{ steps.validate_ef_migration_rollback_parity.outputs.validation-result }}

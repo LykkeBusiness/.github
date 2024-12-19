@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       target_branch:
-        description: "The branch to analyze for SQL migration-rollback parity"
+        description: "The branch to analyze for SQL migration-rollback parity."
         required: true
         type: string
 
