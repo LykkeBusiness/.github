@@ -14,10 +14,16 @@ This reusable GitHub Actions workflow provides a baseline for validating SQL fil
    Decodes and analyzes the output of the naming convention check. If any violations are found, the workflow fails, preventing non-compliant changes from moving forward.
 
 4. **SQL Migration-Rollback Parity Check**:  
-   Performs an additional validation to ensure that every migration file has a corresponding rollback file where needed, maintaining strict parity. This step helps ensure that database changes can always be reversed if necessary.
+   Performs an additional validation to ensure that every SQL migration file has a corresponding rollback file where needed, maintaining strict parity. This step helps ensure that database changes can always be reversed if necessary.
 
 5. **Result Analysis (Migration-Rollback Parity)**:  
-   Examines the results of the migration-rollback parity check. If any parity issues are detected (e.g., a migration without a proper rollback), the workflow fails, signaling that the database change is incomplete or out of compliance.
+   Examines the results of the SQL migration-rollback parity check. If any parity issues are detected (e.g., a migration without a proper rollback), the workflow fails, signaling that the database change is incomplete or out of compliance.
+
+6. **EF Core Migration-Rollback Parity Check**:  
+   Executes a check to verify that every EF Core migration has a corresponding rollback. This ensures that code-first migrations are reversible, maintaining the integrity of your database schema over time.
+
+7. **Result Analysis (EF Core Migration-Rollback Parity)**:  
+   Analyzes the outcomes of the EF Core migration-rollback parity check. If discrepancies are found—such as migrations lacking proper rollbacks—the workflow fails, preventing the integration of incomplete or non-compliant EF Core migrations.
 
 ## Future Improvements
 
