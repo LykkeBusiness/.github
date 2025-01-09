@@ -31,3 +31,9 @@ jobs:
         with:
           base-branch: ${{ inputs.base_branch }}
           compare-branch: ${{ inputs.compare_branch }}
+
+      - name: Analyze CHANGELOG.md migration scripts entries
+        id: analyze_changelog_migration_entries
+        uses: LykkeBusiness/.github/.github/actions/sql-migration-changelog-analyze@master
+        with:
+          validation-result: ${{ steps.validate_sql_changelog.outputs.validation-result }}
