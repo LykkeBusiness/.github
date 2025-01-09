@@ -1,0 +1,39 @@
+name: "SQL Migration Changelog Check"
+description: "Check if CHANGELOG.md file contains references to SQL migration and rollback scripts."
+inputs:
+  target-branch:
+    description: "Branch to analyze for CHANGELOG.md file."
+    required: true
+outputs:
+  validation-result:
+    description: "List of migration script files (base64-encoded) that do not have a corresponding entry in CHANGELOG.md."
+    value: ${{ steps.encode_result.outputs.validation-result }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Find migration scripts
+      id: find_migration_scripts
+      run: |
+        "${GITHUB_ACTION_PATH}/scripts/find_migration_scripts/find_migration_scripts.sh"
+      shell: bash
+
+    - name: Check if any migration script files found
+      if: ${{ always() }}
+      id: empty_check
+      run: |
+        "${GITHUB_ACTION_PATH}/scripts/check_empty_migration_scripts/check_empty_migration_scripts.sh"
+      shell: bash
+
+    - name: CHANGELOG.md check
+      id: changelog_check
+      if: ${{ steps.empty_check.outputs.migration-scripts-changed == 'true' }}
+      run: |
+        "${GITHUB_ACTION_PATH}/scripts/changelog_check/changelog_check.sh" migration_scripts.txt > validation_result.txt
+      shell: bash
+
+    - name: Encode and set result
+      id: encode_result
+      run: |
+        "${GITHUB_ACTION_PATH}/scripts/encode_result/encode_result.sh" validation_result.txt >> $GITHUB_OUTPUT
+      shell: bash

@@ -1,0 +1,32 @@
+name: SQL Changelog Check
+
+on:
+  workflow_call:
+    inputs:
+      base_branch:
+        description: "Base branch name for comparison."
+        required: true
+        default: "master"
+        type: string
+      compare_branch:
+        description: "Branch name to compare with the base branch."
+        required: true
+        type: string
+
+jobs:
+  sql_changelog_check:
+    name: SQL Changelog Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run SQL changelog check
+        id: validate_sql_changelog
+        uses: LykkeBusiness/.github/.github/actions/sql-migration-changelog-check@master
+        with:
+          target-branch: ${{ inputs.compare_branch }}
