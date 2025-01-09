@@ -29,4 +29,5 @@ jobs:
         id: validate_sql_changelog
         uses: LykkeBusiness/.github/.github/actions/sql-migration-changelog-check@master
         with:
-          target-branch: ${{ inputs.compare_branch }}
+          base-branch: ${{ inputs.base_branch }}
+          compare-branch: ${{ inputs.compare_branch }}

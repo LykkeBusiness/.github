@@ -1,8 +1,12 @@
 name: "SQL Migration Changelog Check"
 description: "Check if CHANGELOG.md file contains references to SQL migration and rollback scripts."
 inputs:
-  target-branch:
-    description: "Branch to analyze for CHANGELOG.md file."
+  base-branch:
+    description: "Base branch name for comparison."
+    required: true
+    default: "master"
+  compare-branch:
+    description: "Branch name to compare with the base branch."
     required: true
 outputs:
   validation-result:
@@ -15,7 +19,7 @@ runs:
     - name: Find migration scripts
       id: find_migration_scripts
       run: |
-        "${GITHUB_ACTION_PATH}/scripts/find_migration_scripts/find_migration_scripts.sh"
+        "${GITHUB_ACTION_PATH}/scripts/find_migration_scripts/find_migration_scripts.sh" "${{ inputs.base-branch }}" "${{ inputs.compare-branch }}"
       shell: bash
 
     - name: Check if any migration script files found
