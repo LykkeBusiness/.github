@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+set -Eeuox pipefail
 
 if [[ $# -ne 1 ]]; then
     echo "Usage: $0 <migration_scripts.txt>"
