@@ -1,0 +1,39 @@
+name: EF Core Changelog Check
+
+on:
+  workflow_call:
+    inputs:
+      base_branch:
+        description: "Base branch name for comparison."
+        required: true
+        default: "master"
+        type: string
+      compare_branch:
+        description: "Branch name to compare with the base branch."
+        required: true
+        type: string
+
+jobs:
+  ef_changelog_check:
+    name: EF Core Changelog Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run EF Core changelog check
+        id: validate_ef_changelog
+        uses: LykkeBusiness/.github/.github/actions/ef-migration-changelog-check@master
+        with:
+          base-branch: ${{ inputs.base_branch }}
+          compare-branch: ${{ inputs.compare_branch }}
+
+      - name: Analyze CHANGELOG.md EF Core migration files entries
+        id: analyze_ef_changelog_migration_entries
+        uses: LykkeBusiness/.github/.github/actions/ef-migration-changelog-analyze@master
+        with:
+          validation-result: ${{ steps.validate_ef_changelog.outputs.validation-result }}

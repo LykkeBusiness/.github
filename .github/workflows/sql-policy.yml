@@ -64,3 +64,10 @@ jobs:
     with:
       base_branch: ${{ inputs.base_branch }}
       compare_branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
+
+  sql_ef_changelog_check:
+    needs: [set_comparison_branch, sql_naming_convention_check]
+    uses: LykkeBusiness/.github/.github/workflows/sql-ef-changelog-check.yml@master
+    with:
+      base_branch: ${{ inputs.base_branch }}
+      compare_branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
