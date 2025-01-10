@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+set -Eeuox pipefail
 
 BASE_BRANCH="$1"
 COMPARE_BRANCH="$2"

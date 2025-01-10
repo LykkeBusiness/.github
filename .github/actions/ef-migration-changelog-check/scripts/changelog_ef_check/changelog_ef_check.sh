@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+set -Eeux pipefail
 
 if [[ $# -lt 1 || $# -gt 2 ]]; then
     echo "Usage: $0 <ef_migration_files.txt> [search_dir]"
