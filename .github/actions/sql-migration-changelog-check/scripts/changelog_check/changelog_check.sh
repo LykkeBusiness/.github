@@ -30,11 +30,11 @@ while IFS= read -r file; do
     filename=$(basename "$file")
 
     if [[ $filename =~ ^\[MIGRATION\] ]]; then
-        if ! grep -Eq "^### Migration: <<<$filename>>> \[MANUAL\]$" "$CHANGELOG_FILE_PATH"; then
+        if ! grep -Fxq "### Migration: <<<$filename>>> [MANUAL]" "$CHANGELOG_FILE_PATH"; then
             INVALID_FILES+=("$file")
         fi
     elif [[ $filename =~ ^\[ROLLBACK\] ]]; then
-        if ! grep -Eq "^### Rollback: <<<$filename>>>$" "$CHANGELOG_FILE_PATH"; then
+        if ! grep -Fxq "### Rollback: <<<$filename>>>" "$CHANGELOG_FILE_PATH"; then
             INVALID_FILES+=("$file")
         fi
     else
