@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Eeuox pipefail
+set -Eeuo pipefail
 
 ENCODED_RESULT="$1"
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Eeuox pipefail
+set -Eeuo pipefail
 
 if [ ! -f ef_migration_files.txt ] || [ ! -s ef_migration_files.txt ]; then
     echo "No EF Core migration or SQL rollback files found."
