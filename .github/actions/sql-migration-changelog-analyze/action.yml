@@ -1,0 +1,14 @@
+name: "SQL Migration Changelog Analyze"
+description: "Analyze CHANGELOG.md for SQL migration and rollback scripts entries."
+inputs:
+  validation-result:
+    description: "Base64-encoded validation result from SQL Migration Changelog Check action."
+    required: true
+outputs: {}
+runs:
+  using: "composite"
+  steps:
+    - name: Analyze validation result
+      run: |
+        "${GITHUB_ACTION_PATH}/scripts/analyze_sql_migration_changelog_result/analyze_sql_migration_changelog_result.sh" "${{ inputs.validation-result }}"
+      shell: bash

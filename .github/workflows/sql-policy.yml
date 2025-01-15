@@ -1,0 +1,73 @@
+name: SQL Policy Check
+
+on:
+  workflow_call:
+    inputs:
+      base_branch:
+        description: "Base branch to compare against"
+        required: true
+        type: string
+        default: "master"
+      compare_branch:
+        description: "Branch to compare against the base branch"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      base_branch:
+        description: "Base branch to compare against"
+        required: true
+        type: string
+        default: "master"
+      compare_branch:
+        description: "Branch to compare against the base branch"
+        required: false
+        type: string
+
+jobs:
+  set_comparison_branch:
+    name: Detect Comparison Branch
+    runs-on: ubuntu-latest
+    outputs:
+      compare_branch: ${{ steps.set_comparison_branch.outputs.compare_branch }}
+    steps:
+      - name: Detect Comparison Branch Step
+        id: set_comparison_branch
+        run: |
+          compare_branch=${{ inputs.compare_branch || github.ref_name }}
+          echo "Comparing $compare_branch against ${{ inputs.base_branch }}"
+          echo "compare_branch=$compare_branch" >> $GITHUB_OUTPUT
+
+  sql_naming_convention_check:
+    needs: set_comparison_branch
+    uses: LykkeBusiness/.github/.github/workflows/sql-naming-check.yml@master
+    with:
+      base_branch: ${{ inputs.base_branch }}
+      compare_branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
+
+  sql_migration_rollback_parity_check:
+    needs: [set_comparison_branch, sql_naming_convention_check]
+    uses: LykkeBusiness/.github/.github/workflows/sql-migration-rollback-parity-check.yml@master
+    with:
+      target_branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
+
+  sql_ef_migration_rollback_parity_check:
+    needs: [set_comparison_branch, sql_naming_convention_check]
+    uses: LykkeBusiness/.github/.github/workflows/sql-ef-migration-rollback-parity-check.yml@master
+    with:
+      base_branch: ${{ inputs.base_branch }}
+      compare_branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
+  
+  sql_changelog_check:
+    needs: [set_comparison_branch, sql_naming_convention_check]
+    uses: LykkeBusiness/.github/.github/workflows/sql-changelog-check.yml@master
+    with:
+      base_branch: ${{ inputs.base_branch }}
+      compare_branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}
+
+  sql_ef_changelog_check:
+    needs: [set_comparison_branch, sql_naming_convention_check]
+    uses: LykkeBusiness/.github/.github/workflows/sql-ef-changelog-check.yml@master
+    with:
+      base_branch: ${{ inputs.base_branch }}
+      compare_branch: ${{ needs.set_comparison_branch.outputs.compare_branch }}

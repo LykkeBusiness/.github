@@ -1,0 +1,43 @@
+name: "SQL Naming Convention Check"
+description: "Validates SQL file naming conventions according to Lykke policy"
+inputs:
+  base-branch:
+    description: "Base branch name for comparison."
+    required: true
+    default: "master"
+  compare-branch:
+    description: "Branch name to compare with the base branch."
+    required: true
+outputs:
+  validation-result:
+    description: "List of files (base64-encoded) that violate the SQL naming convention."
+    value: ${{ steps.encode_result.outputs.validation-result }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get changed SQL files
+      id: get_sql_files
+      run: |
+        "${GITHUB_ACTION_PATH}/scripts/get_changed_sql_files/get_changed_sql_files.sh" "${{ inputs.base-branch }}" "${{ inputs.compare-branch }}"
+      shell: bash
+
+    - name: Check if any SQL files were changed
+      if: ${{ always() }}
+      id: empty_check
+      run: |
+        "${GITHUB_ACTION_PATH}/scripts/check_empty_sql_files/check_empty_sql_files.sh"
+      shell: bash
+
+    - name: Validate SQL naming conventions
+      id: validate
+      if: ${{ steps.empty_check.outputs.sql-files-changed == 'true' }}
+      run: |
+        "${GITHUB_ACTION_PATH}/scripts/validate_sql_naming/validate_sql_naming.sh" sql_files.txt > validation_result.txt
+      shell: bash
+
+    - name: Encode and set result
+      id: encode_result
+      run: |
+        "${GITHUB_ACTION_PATH}/scripts/encode_result/encode_result.sh" validation_result.txt >> $GITHUB_OUTPUT
+      shell: bash
