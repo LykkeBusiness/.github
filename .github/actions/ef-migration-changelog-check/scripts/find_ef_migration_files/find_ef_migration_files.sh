@@ -6,7 +6,7 @@ COMPARE_BRANCH="$2"
 
 git fetch origin "${BASE_BRANCH}" "${COMPARE_BRANCH}"
 
-declare -a CHANGED_FILES=()
+CHANGED_FILES=()
 
 while IFS= read -r file; do
     CHANGED_FILES+=("$file")
