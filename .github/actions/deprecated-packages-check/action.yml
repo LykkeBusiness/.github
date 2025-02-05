@@ -1,0 +1,40 @@
+name: "Deprecated Packages Check"
+description: "Checks for deprecated NuGet packages"
+
+inputs:
+  excluded-packages:
+    description: "Comma-separated list of packages to exclude."
+    required: false
+    default: ""
+  path:
+    description: "Relative path to the folder with solution file or project file."
+    required: true
+    default: "./src"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get deprecated packages
+      shell: bash
+      run: |
+        dotnet list ${{ inputs.path }} package --deprecated | tee deprecated.txt
+
+    - name: Check for deprecated packages
+      shell: bash
+      run: |
+        IFS=',' read -ra allowed_packages <<<"${{ inputs.excluded-packages }}";
+
+        for package in "${allowed_packages[@]}"; do
+            sed -i "/$package/d" deprecated.txt
+            echo "Ignoring deprecated package: $package"
+        done
+
+        hasDeprecatedPackages=($(grep -cm 1 '> ' deprecated.txt) -gt 0);
+
+        rm -f deprecated.txt;
+
+        if [ $hasDeprecatedPackages -gt 0 ]; then
+            exit 1;
+        fi
+
+        exit 0;
