@@ -1,5 +1,5 @@
 name: Publish Snow NuGet Package
-# This workflow is agreed on and requirements are documented 
+# This workflow is agreed on and requirements are documented
 # in https://bit.ly/4529Q9Q.
 
 on:
@@ -20,6 +20,22 @@ on:
       release_name:
         description: 'Release name (e.g. "Nova 2. Delivery X. Hotfix Y"). If empty, will be extracted from CHANGELOG.md'
         required: false
+      excluded_packages:
+        description: 'Comma-separated list of packages to exclude from vulnurability check'
+        required: true
+        default: ''
+      path:
+        description: 'Relative path to the folder with solution file or project file.'
+        required: true
+        default: './src'
+      changelog_path:
+        description: 'Relative path to the CHANGELOG.md file'
+        required: true
+        default: '.'
+      tag_name:
+        description: 'Name of the tag, defaut to version'
+        required: false
+        default: ''
 
 jobs:
   build:
@@ -31,9 +47,20 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: NuGet Vulnerability Check
+        uses: LykkeBusiness/.github/.github/actions/nuget-vulnerability-check
+        with:
+          excluded-packages: ${{ github.event.inputs.excluded_packages }}
+          path: ${{ github.event.inputs.path }}
+
       - name: Checkout deployment tools
         run: |
-          git clone -v https://${{ secrets.BITBUCKET_USER }}:${{ secrets.BITBUCKET_PASSWORD }}@bitbucket.org/lykke-snow/lykke.snow.deployment.git lykke.snow.deployment
+          git clone -v https://${{ secrets.GH_USER }}:${{ secrets.GH_PASSWORD }}@github.com/LykkeBusiness/Lykke.Snow.Deployment lykke.snow.deployment
 
       - name: Parse version number
         uses: LykkeBusiness/.github/actions/parse-version@parse-version-v1
@@ -45,12 +72,14 @@ jobs:
         uses: LykkeBusiness/.github/actions/inject-version-changelog@inject-version-changelog-v2
         with:
           version: ${{ env.TAG_NUMBERS }}
+          folder: ${{ github.event.inputs.changelog_path }}
 
       - name: Update .csproj files with new version
         uses: LykkeBusiness/.github/actions/update-version-csproj@update-version-csproj-v1
         with:
           version: ${{ env.TAG_NUMBERS }}
-          
+          folder: ${{ github.event.inputs.changelog_path }}
+
       # Tags the current commit with the new version
       - name: Tag version
         run: |
@@ -58,15 +87,11 @@ jobs:
           git config --global user.email 'actions@github.com'
           git add -A
           git reset -- lykke.snow.deployment
+          TAG_NAME=${{ github.event.inputs.tag_name || github.event.inputs.version }}
           git commit -m "Version ${{ env.TAG_NUMBERS }}"
-          git tag -fa ${{ github.event.inputs.version }} -m "${{ github.event.inputs.version }}"
+          git tag -fa $TAG_NAME -m "${{ github.event.inputs.version }}"
           git push origin --tags
           git push origin ${{ github.ref }}
-      
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '6.0.x' # Using .NET 6
 
       - name: Restore dependencies
         run: dotnet restore
@@ -88,7 +113,9 @@ jobs:
         uses: LykkeBusiness/.github/actions/extract-notes-changelog@extract-notes-changelog-v1
         with:
           release_name: ${{ github.event.inputs.release_name }}
-      
+          version: ${{ env.TAG_NUMBERS }}
+          folder: ${{ github.event.inputs.changelog_path }}
+
       # Creates a GitHub release with the release name and release notes from CHANGELOG.md
       - name: Create GitHub Release
         if: ${{ github.event.inputs.create_release == 'true' }}
@@ -101,6 +128,6 @@ jobs:
           body_path: ${{ env.RELEASE_NOTES_FILE }}
           draft: false
           prerelease: false
-          
+
       - name: Clean up temporary files
         run: rm -f ${{ env.RELEASE_NOTES_FILE }}
