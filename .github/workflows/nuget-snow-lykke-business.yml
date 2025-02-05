@@ -20,8 +20,12 @@ on:
       release_name:
         description: 'Release name (e.g. "Nova 2. Delivery X. Hotfix Y"). If empty, will be extracted from CHANGELOG.md'
         required: false
-      excluded_packages:
+      excluded_vulnurable_packages:
         description: 'Comma-separated list of packages to exclude from vulnurability check'
+        required: true
+        default: ''
+      excluded_deprecated_packages:
+        description: 'Comma-separated list of packages to exclude from deprecated check'
         required: true
         default: ''
       path:
@@ -55,7 +59,13 @@ jobs:
       - name: NuGet Vulnerability Check
         uses: LykkeBusiness/.github/.github/actions/nuget-vulnerability-check
         with:
-          excluded-packages: ${{ github.event.inputs.excluded_packages }}
+          excluded-packages: ${{ github.event.inputs.excluded_vulnurable_packages }}
+          path: ${{ github.event.inputs.path }}
+
+      - name: NuGet Deprecated Packages Check
+        uses: LykkeBusiness/.github/.github/actions/deprecated-packages-check
+        with:
+          excluded-packages: ${{ github.event.inputs.excluded_deprecated_packages }}
           path: ${{ github.event.inputs.path }}
 
       - name: Checkout deployment tools

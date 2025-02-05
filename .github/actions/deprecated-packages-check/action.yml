@@ -1,5 +1,5 @@
-name: "NuGet Vulnerability Check"
-description: "Checks NuGet packages for vulnerabilities"
+name: "Deprecated Packages Check"
+description: "Checks for deprecated NuGet packages"
 
 inputs:
   excluded-packages:
@@ -14,26 +14,26 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Get vulnerabe packages
+    - name: Get deprecated packages
       shell: bash
       run: |
-        dotnet list ${{ inputs.path }} package --include-transitive --vulnerable | tee vulnerabilities.txt
+        dotnet list ${{ inputs.path }} package --deprecated | tee deprecated.txt
 
-    - name: Check for vulnerable packages
+    - name: Check for deprecated packages
       shell: bash
       run: |
         IFS=',' read -ra allowed_packages <<<"${{ inputs.excluded-packages }}";
 
         for package in "${allowed_packages[@]}"; do
-            sed -i "/$package/d" vulnerabilities.txt
-            echo "Ignoring vulnerable package: $package"
+            sed -i "/$package/d" deprecated.txt
+            echo "Ignoring deprecated package: $package"
         done
 
-        hasVulnerabePackages=($(grep -cm 1 '> ' vulnerabilities.txt) -gt 0);
+        hasDeprecatedPackages=($(grep -cm 1 '> ' deprecated.txt) -gt 0);
 
-        rm -f vulnerabilities.txt;
+        rm -f deprecated.txt;
 
-        if [ $hasVulnerabePackages -gt 0 ]; then
+        if [ $hasDeprecatedPackages -gt 0 ]; then
             exit 1;
         fi
 
