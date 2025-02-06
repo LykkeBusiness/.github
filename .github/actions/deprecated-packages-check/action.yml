@@ -29,9 +29,9 @@ runs:
             echo "Ignoring deprecated package: $package"
         done
 
-        hasDeprecatedPackages=$(grep -cm 1 '> ' deprecated.txt || echo 0);
+        hasDeprecatedPackages=$(grep -cm 1 '> ' deprecated.txt || true);
 
-        echo "hasDeprecatedPackages: $hasDeprecatedPackages";
+        echo "hasDeprecatedPackages: [$hasDeprecatedPackages]";
 
         rm -f deprecated.txt;
 
