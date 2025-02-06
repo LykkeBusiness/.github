@@ -1,4 +1,4 @@
-name: Publish Snow NuGet Package
+name: Publish NuGet Package
 # This workflow is agreed on and requirements are documented
 # in https://bit.ly/4529Q9Q.
 
@@ -20,8 +20,8 @@ on:
       release_name:
         description: 'Release name (e.g. "Nova 2. Delivery X. Hotfix Y"). If empty, will be extracted from CHANGELOG.md'
         required: false
-      excluded_vulnurable_packages:
-        description: 'Comma-separated list of packages to exclude from vulnurability check'
+      excluded_vulnerable_packages:
+        description: 'Comma-separated list of packages to exclude from vulnerability check'
         required: true
         default: ''
       excluded_deprecated_packages:
@@ -37,7 +37,7 @@ on:
         required: true
         default: '.'
       tag_name:
-        description: 'Name of the tag, defaut to version'
+        description: 'Name of the tag, default to version'
         required: false
         default: ''
 
