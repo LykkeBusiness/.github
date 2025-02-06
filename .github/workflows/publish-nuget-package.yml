@@ -65,6 +65,9 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Restore dependencies
+        run: dotnet restore
+
       - name: NuGet Vulnerability Check
         uses: LykkeBusiness/.github/.github/actions/nuget-vulnerability-check@master
         with:
@@ -111,9 +114,6 @@ jobs:
           git tag -fa $TAG_NAME -m "${{ inputs.version }}"
           git push origin --tags
           git push origin ${{ github.ref }}
-
-      - name: Restore dependencies
-        run: dotnet restore
 
       - name: Build
         run: dotnet build --configuration Release --no-restore
