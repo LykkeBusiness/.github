@@ -31,10 +31,11 @@ runs:
 
         hasDeprecatedPackages=($(grep -cm 1 '> ' deprecated.txt) -gt 0);
 
+        echo "hasDeprecatedPackages: $hasDeprecatedPackages";
+
         rm -f deprecated.txt;
 
         if [ $hasDeprecatedPackages -gt 0 ]; then
-            exit 1;
+          echo "Found deprecated packages! Please check output.";
+          exit 1;
         fi
-
-        exit 0;
