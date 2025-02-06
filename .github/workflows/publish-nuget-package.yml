@@ -1,4 +1,4 @@
-name: Publish Snow NuGet Package
+name: Publish NuGet Package
 # This workflow is agreed on and requirements are documented
 # in https://bit.ly/4529Q9Q.
 
@@ -20,13 +20,13 @@ on:
       release_name:
         description: 'Release name (e.g. "Nova 2. Delivery X. Hotfix Y"). If empty, will be extracted from CHANGELOG.md'
         required: false
-      excluded_vulnurable_packages:
-        description: 'Comma-separated list of packages to exclude from vulnurability check'
-        required: true
+      excluded_vulnerable_packages:
+        description: 'Comma-separated list of packages to exclude from vulnerability check'
+        required: false
         default: ''
       excluded_deprecated_packages:
         description: 'Comma-separated list of packages to exclude from deprecated check'
-        required: true
+        required: false
         default: ''
       path:
         description: 'Relative path to the folder with solution file or project file.'
@@ -37,7 +37,7 @@ on:
         required: true
         default: '.'
       tag_name:
-        description: 'Name of the tag, defaut to version'
+        description: 'Name of the tag, default to version'
         required: false
         default: ''
 
@@ -57,13 +57,13 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: NuGet Vulnerability Check
-        uses: LykkeBusiness/.github/.github/actions/nuget-vulnerability-check
+        uses: LykkeBusiness/.github/.github/actions/nuget-vulnerability-check@master
         with:
           excluded-packages: ${{ github.event.inputs.excluded_vulnurable_packages }}
           path: ${{ github.event.inputs.path }}
 
       - name: NuGet Deprecated Packages Check
-        uses: LykkeBusiness/.github/.github/actions/deprecated-packages-check
+        uses: LykkeBusiness/.github/.github/actions/deprecated-packages-check@master
         with:
           excluded-packages: ${{ github.event.inputs.excluded_deprecated_packages }}
           path: ${{ github.event.inputs.path }}
