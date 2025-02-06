@@ -35,7 +35,7 @@ runs:
 
         rm -f deprecated.txt;
 
-        if [ "$hasDeprecatedPackages" -gt 0 ]; then
+        if (( hasDeprecatedPackages > 0 )); then
           echo "Found deprecated packages! Please check output.";
           exit 1;
         fi
