@@ -3,40 +3,49 @@ name: Publish NuGet Package
 # in https://bit.ly/4529Q9Q.
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       version:
+        type: string
         description: 'Version number (e.g. v1.0.0)'
         required: true
         default: 'v1.0.0'
       create_release:
+        type: boolean
         description: 'Create a GitHub release'
         required: true
-        default: 'true'
+        default: true
       update_changelog:
+        type: boolean
         description: 'Update CHANGELOG.md'
         required: true
-        default: 'true'
+        default: true
       release_name:
+        type: string
         description: 'Release name (e.g. "Nova 2. Delivery X. Hotfix Y"). If empty, will be extracted from CHANGELOG.md'
         required: false
       excluded_vulnerable_packages:
+        type: string
         description: 'Comma-separated list of packages to exclude from vulnerability check'
         required: false
         default: ''
       excluded_deprecated_packages:
+        type: string
         description: 'Comma-separated list of packages to exclude from deprecated check'
         required: false
         default: ''
       path:
+        type: string
         description: 'Relative path to the folder with solution file or project file.'
         required: true
         default: './src'
       changelog_path:
+        type: string
         description: 'Relative path to the CHANGELOG.md file'
         required: true
         default: '.'
       tag_name:
+        type: string
         description: 'Name of the tag, default to version'
         required: false
         default: ''
