@@ -66,7 +66,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore ${{ inputs.path }}
 
       - name: NuGet Vulnerability Check
         uses: LykkeBusiness/.github/.github/actions/nuget-vulnerability-check@master
