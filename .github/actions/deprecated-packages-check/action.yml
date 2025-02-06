@@ -29,7 +29,7 @@ runs:
             echo "Ignoring deprecated package: $package"
         done
 
-        hasDeprecatedPackages=($(grep -cm 1 '> ' deprecated.txt) -gt 0);
+        hasDeprecatedPackages=($(grep -cm 1 '> ' deprecated.txt) -gt 0 || echo 0);
 
         echo "hasDeprecatedPackages: $hasDeprecatedPackages";
 
