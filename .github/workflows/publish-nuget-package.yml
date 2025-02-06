@@ -68,14 +68,14 @@ jobs:
       - name: NuGet Vulnerability Check
         uses: LykkeBusiness/.github/.github/actions/nuget-vulnerability-check@master
         with:
-          excluded-packages: ${{ github.event.inputs.excluded_vulnurable_packages }}
-          path: ${{ github.event.inputs.path }}
+          excluded-packages: ${{ inputs.excluded_vulnerable_packages }}
+          path: ${{ inputs.path }}
 
       - name: NuGet Deprecated Packages Check
         uses: LykkeBusiness/.github/.github/actions/deprecated-packages-check@master
         with:
-          excluded-packages: ${{ github.event.inputs.excluded_deprecated_packages }}
-          path: ${{ github.event.inputs.path }}
+          excluded-packages: ${{ inputs.excluded_deprecated_packages }}
+          path: ${{ inputs.path }}
 
       - name: Checkout deployment tools
         run: |
@@ -84,20 +84,20 @@ jobs:
       - name: Parse version number
         uses: LykkeBusiness/.github/actions/parse-version@parse-version-v1
         with:
-          version: ${{ github.event.inputs.version }}
+          version: ${{ inputs.version }}
 
       - name: Inject new version into changelog file
-        if: ${{ github.event.inputs.update_changelog == 'true' }}
+        if: ${{ inputs.update_changelog == 'true' }}
         uses: LykkeBusiness/.github/actions/inject-version-changelog@inject-version-changelog-v2
         with:
           version: ${{ env.TAG_NUMBERS }}
-          folder: ${{ github.event.inputs.changelog_path }}
+          folder: ${{ inputs.changelog_path }}
 
       - name: Update .csproj files with new version
         uses: LykkeBusiness/.github/actions/update-version-csproj@update-version-csproj-v1
         with:
           version: ${{ env.TAG_NUMBERS }}
-          folder: ${{ github.event.inputs.changelog_path }}
+          folder: ${{ inputs.changelog_path }}
 
       # Tags the current commit with the new version
       - name: Tag version
@@ -106,9 +106,9 @@ jobs:
           git config --global user.email 'actions@github.com'
           git add -A
           git reset -- lykke.snow.deployment
-          TAG_NAME=${{ github.event.inputs.tag_name || github.event.inputs.version }}
+          TAG_NAME=${{ inputs.tag_name || inputs.version }}
           git commit -m "Version ${{ env.TAG_NUMBERS }}"
-          git tag -fa $TAG_NAME -m "${{ github.event.inputs.version }}"
+          git tag -fa $TAG_NAME -m "${{ inputs.version }}"
           git push origin --tags
           git push origin ${{ github.ref }}
 
@@ -128,21 +128,21 @@ jobs:
         run: dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Extract release notes from changelog file
-        if: ${{ github.event.inputs.create_release == 'true' }}
+        if: ${{ inputs.create_release == 'true' }}
         uses: LykkeBusiness/.github/actions/extract-notes-changelog@extract-notes-changelog-v1
         with:
-          release_name: ${{ github.event.inputs.release_name }}
+          release_name: ${{ inputs.release_name }}
           version: ${{ env.TAG_NUMBERS }}
-          folder: ${{ github.event.inputs.changelog_path }}
+          folder: ${{ inputs.changelog_path }}
 
       # Creates a GitHub release with the release name and release notes from CHANGELOG.md
       - name: Create GitHub Release
-        if: ${{ github.event.inputs.create_release == 'true' }}
+        if: ${{ inputs.create_release == 'true' }}
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.event.inputs.version }}
+          tag_name: ${{ inputs.version }}
           release_name: ${{ env.RELEASE_NAME }}
           body_path: ${{ env.RELEASE_NOTES_FILE }}
           draft: false
