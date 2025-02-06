@@ -22,11 +22,11 @@ on:
         required: false
       excluded_vulnerable_packages:
         description: 'Comma-separated list of packages to exclude from vulnerability check'
-        required: true
+        required: false
         default: ''
       excluded_deprecated_packages:
         description: 'Comma-separated list of packages to exclude from deprecated check'
-        required: true
+        required: false
         default: ''
       path:
         description: 'Relative path to the folder with solution file or project file.'
