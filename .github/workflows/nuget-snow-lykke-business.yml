@@ -57,13 +57,13 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: NuGet Vulnerability Check
-        uses: LykkeBusiness/.github/.github/actions/nuget-vulnerability-check
+        uses: LykkeBusiness/.github/.github/actions/nuget-vulnerability-check@master
         with:
           excluded-packages: ${{ github.event.inputs.excluded_vulnurable_packages }}
           path: ${{ github.event.inputs.path }}
 
       - name: NuGet Deprecated Packages Check
-        uses: LykkeBusiness/.github/.github/actions/deprecated-packages-check
+        uses: LykkeBusiness/.github/.github/actions/deprecated-packages-check@master
         with:
           excluded-packages: ${{ github.event.inputs.excluded_deprecated_packages }}
           path: ${{ github.event.inputs.path }}
