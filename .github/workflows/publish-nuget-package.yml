@@ -1,0 +1,157 @@
+name: Publish NuGet Package
+# This workflow is agreed on and requirements are documented
+# in https://bit.ly/4529Q9Q.
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        description: 'Version number (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+      create_release:
+        type: boolean
+        description: 'Create a GitHub release'
+        required: true
+        default: true
+      update_changelog:
+        type: boolean
+        description: 'Update CHANGELOG.md'
+        required: true
+        default: true
+      release_name:
+        type: string
+        description: 'Release name (e.g. "Nova 2. Delivery X. Hotfix Y"). If empty, will be extracted from CHANGELOG.md'
+        required: false
+      excluded_vulnerable_packages:
+        type: string
+        description: 'Comma-separated list of packages to exclude from vulnerability check'
+        required: false
+        default: ''
+      excluded_deprecated_packages:
+        type: string
+        description: 'Comma-separated list of packages to exclude from deprecated check'
+        required: false
+        default: ''
+      path:
+        type: string
+        description: 'Relative path to the folder with solution file or project file.'
+        required: true
+        default: './src'
+      nuget-project-path:
+        type: string
+        description: 'Relative path to the folder with project file to pack.'
+        required: true
+        default: ''
+      changelog_path:
+        type: string
+        description: 'Relative path to the CHANGELOG.md file'
+        required: true
+        default: '.'
+      tag_name:
+        type: string
+        description: 'Name of the tag, default to version'
+        required: false
+        default: ''
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ inputs.path }}
+
+      - name: NuGet Vulnerability Check
+        uses: LykkeBusiness/.github/.github/actions/nuget-vulnerability-check@master
+        with:
+          excluded-packages: ${{ inputs.excluded_vulnerable_packages }}
+          path: ${{ inputs.path }}
+
+      - name: NuGet Deprecated Packages Check
+        uses: LykkeBusiness/.github/.github/actions/deprecated-packages-check@master
+        with:
+          excluded-packages: ${{ inputs.excluded_deprecated_packages }}
+          path: ${{ inputs.path }}
+
+      - name: Checkout deployment tools
+        run: |
+          git clone -v https://${{ secrets.GH_USER }}:${{ secrets.GH_PASSWORD }}@github.com/LykkeBusiness/Lykke.Snow.Deployment lykke.snow.deployment
+
+      - name: Parse version number
+        uses: LykkeBusiness/.github/actions/parse-version@parse-version-v1
+        with:
+          version: ${{ inputs.version }}
+
+      - name: Inject new version into changelog file
+        if: ${{ inputs.update_changelog == 'true' }}
+        uses: LykkeBusiness/.github/actions/inject-version-changelog@inject-version-changelog-v2
+        with:
+          version: ${{ env.TAG_NUMBERS }}
+          folder: ${{ inputs.changelog_path }}
+
+      - name: Update .csproj files with new version
+        uses: LykkeBusiness/.github/actions/update-version-csproj@update-version-csproj-v1
+        with:
+          version: ${{ env.TAG_NUMBERS }}
+          folder: ${{ inputs.changelog_path }}
+
+      - name: Tag version
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git config set advice.addEmbeddedRepo false
+          git add -A
+          git reset -- lykke.snow.deployment
+          TAG_NAME=${{ inputs.tag_name || inputs.version }}
+          git commit -m "Version ${{ env.TAG_NUMBERS }}"
+          git tag -fa $TAG_NAME -m "${{ inputs.version }}"
+          git push origin --tags
+          git push origin ${{ github.ref }}
+
+      - name: Build
+        run: dotnet build ${{ inputs.path }} --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test ${{ inputs.path }} --no-restore --verbosity normal
+
+      - name: Pack
+        run: dotnet pack ${{ inputs.nuget-project-path }} --no-build --configuration Release -o out
+
+      - name: Push
+        run: dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://nuget.lykke-business.ch/api/v3/index.json --skip-duplicate
+
+      - name: Extract release notes from changelog file
+        if: ${{ inputs.create_release == 'true' }}
+        uses: LykkeBusiness/.github/actions/extract-notes-changelog@extract-notes-changelog-v1
+        with:
+          release_name: ${{ inputs.release_name }}
+          version: ${{ env.TAG_NUMBERS }}
+          folder: ${{ inputs.changelog_path }}
+
+      # Creates a GitHub release with the release name and release notes from CHANGELOG.md
+      - name: Create GitHub Release
+        if: ${{ inputs.create_release == 'true' }}
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ inputs.version }}
+          release_name: ${{ env.RELEASE_NAME }}
+          body_path: ${{ env.RELEASE_NOTES_FILE }}
+          draft: false
+          prerelease: false
+
+      - name: Clean up temporary files
+        run: rm -f ${{ env.RELEASE_NOTES_FILE }}
