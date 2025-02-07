@@ -124,7 +124,7 @@ jobs:
         run: dotnet build ${{ inputs.path }} --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test ${{ inputs.path }} --no-restore --verbosity normal
+        run: dotnet test ${{ inputs.path }} --no-build --no-restore --verbosity normal
 
       - name: Pack
         run: dotnet pack ${{ inputs.nuget-project-path }} --no-build --configuration Release -o out
