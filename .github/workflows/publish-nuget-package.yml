@@ -133,7 +133,7 @@ jobs:
         run: dotnet pack ${{ inputs.nuget-project-path }} --no-build --configuration Release -o out
 
       - name: Push to private feed
-        run: dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN_LYKKE }} --source https://nuget.lykke-business.ch/api/v3/index.json --skip-duplicate
+        run: dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN_LYKKEBIZ }} --source https://nuget.lykke-business.ch/api/v3/index.json --skip-duplicate
 
       - name: Push to nuget.org
         run: dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json --skip-duplicate
