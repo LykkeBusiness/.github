@@ -70,6 +70,9 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: add nuget source
+        run: dotnet nuget add source https://nuget.lykke-business.ch/api/v3/index.json -n snow
+
       - name: Restore dependencies
         run: dotnet restore ${{ inputs.path }}
 
