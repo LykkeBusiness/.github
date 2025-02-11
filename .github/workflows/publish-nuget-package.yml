@@ -151,7 +151,7 @@ jobs:
         if: ${{ inputs.create_release == 'true' }}
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           tag_name: ${{ inputs.version }}
           release_name: ${{ env.RELEASE_NAME }}
