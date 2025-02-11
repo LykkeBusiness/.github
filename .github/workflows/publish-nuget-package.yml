@@ -74,19 +74,19 @@ jobs:
         run: dotnet nuget add source https://nuget.lykke-business.ch/api/v3/index.json -n snow
 
       - name: Restore dependencies
-        run: dotnet restore ${{ inputs.path }}
+        run: dotnet restore ${{ inputs.nuget-project-path }}
 
       - name: NuGet Vulnerability Check
         uses: LykkeBusiness/.github/.github/actions/nuget-vulnerability-check@master
         with:
           excluded-packages: ${{ inputs.excluded_vulnerable_packages }}
-          path: ${{ inputs.path }}
+          path: ${{ inputs.nuget-project-path }}
 
       - name: NuGet Deprecated Packages Check
         uses: LykkeBusiness/.github/.github/actions/deprecated-packages-check@master
         with:
           excluded-packages: ${{ inputs.excluded_deprecated_packages }}
-          path: ${{ inputs.path }}
+          path: ${{ inputs.nuget-project-path }}
 
       - name: Checkout deployment tools
         run: |
