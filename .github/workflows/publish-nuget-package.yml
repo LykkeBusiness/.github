@@ -117,11 +117,18 @@ jobs:
           git config set advice.addEmbeddedRepo false
           git add -A
           git reset -- lykke.snow.deployment
-          TAG_NAME=${{ inputs.tag_name || inputs.version }}
-          git commit -m "Version ${{ env.TAG_NUMBERS }}"
-          git tag -fa $TAG_NAME -m "${{ inputs.version }}"
-          git push origin --tags
-          git push origin ${{ github.ref }}
+          filesChanged=$(git status | grep 'modified:' | wc -l)
+          
+          if (( $filesChanged > 0 )); then 
+            TAG_NAME=${{ inputs.tag_name || inputs.version }}
+            echo "Creating tag $TA_NAME"
+            git commit -m "Version ${{ env.TAG_NUMBERS }}"
+            git tag -fa $TAG_NAME -m "${{ inputs.version }}"
+            git push origin --tags
+            git push origin ${{ github.ref }}
+          else
+            echo "No changes to the version, skip tag creation"
+          fi
 
       - name: Build
         run: dotnet build ${{ inputs.path }} --configuration Release --no-restore
