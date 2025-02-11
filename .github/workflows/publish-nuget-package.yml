@@ -74,7 +74,7 @@ jobs:
         run: dotnet nuget add source https://nuget.lykke-business.ch/api/v3/index.json -n snow
 
       - name: Restore dependencies
-        run: dotnet restore ${{ inputs.nuget-project-path }}
+        run: dotnet restore ${{ inputs.path }}
 
       - name: NuGet Vulnerability Check
         uses: LykkeBusiness/.github/.github/actions/nuget-vulnerability-check@master
