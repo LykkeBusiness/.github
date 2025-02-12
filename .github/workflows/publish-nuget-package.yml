@@ -114,6 +114,15 @@ jobs:
           version: ${{ env.TAG_NUMBERS }}
           folder: ${{ inputs.changelog_path }}
 
+      - name: Build
+        run: dotnet build ${{ inputs.path }} --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test ${{ inputs.path }} --no-build --no-restore --configuration Release --verbosity normal
+
+      - name: Pack
+        run: dotnet pack ${{ inputs.nuget-project-path }} --no-build --configuration Release -o out
+
       - name: Tag version
         run: |
           git config --global user.name 'GitHub Actions'
@@ -133,15 +142,6 @@ jobs:
           else
             echo "No changes to the version, skip tag creation"
           fi
-
-      - name: Build
-        run: dotnet build ${{ inputs.path }} --configuration Release --no-restore
-
-      - name: Test
-        run: dotnet test ${{ inputs.path }} --no-build --no-restore --verbosity normal
-
-      - name: Pack
-        run: dotnet pack ${{ inputs.nuget-project-path }} --no-build --configuration Release -o out
 
       - name: Push to private feed
         run: dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN_PRIVATE }} --source https://nuget.lykke-business.ch/api/v3/index.json --skip-duplicate
