@@ -20,6 +20,10 @@ on:
         description: 'Update CHANGELOG.md'
         required: true
         default: true
+      publish_nuget:
+        type: boolean
+        description: 'Publish package to nuget.org'
+        required: false
       release_name:
         type: string
         description: 'Release name (e.g. "Nova 2. Delivery X. Hotfix Y"). If empty, will be extracted from CHANGELOG.md'
@@ -143,6 +147,7 @@ jobs:
         run: dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN_PRIVATE }} --source https://nuget.lykke-business.ch/api/v3/index.json --skip-duplicate
 
       - name: Push to nuget.org
+        if: ${{ inputs.publish_nuget }}
         run: dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN_LYKKEBIZ }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Extract release notes from changelog file
