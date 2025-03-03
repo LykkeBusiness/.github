@@ -58,15 +58,14 @@ on:
         description: 'Name of the tag, default to version'
         required: false
         default: ''
-      nuget_source:
-        type: string
-        description: 'URL for the private NuGet source'
-        required: false
-        default: 'https://nuget.lykke-business.ch/api/v3/index.json'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    env:
+      PRIVATE_NUGET_SOURCE: 'https://nuget.lykke-business.ch/api/v3/index.json'
+      PUBLIC_NUGET_SOURCE: 'https://api.nuget.org/v3/index.json'
 
     steps:
       - name: Checkout code
@@ -80,7 +79,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: add nuget source
-        run: dotnet nuget add source ${{ inputs.nuget_source }} -n snow
+        run: dotnet nuget add source ${{ env.PRIVATE_NUGET_SOURCE }} -n snow
 
       - name: Restore dependencies
         run: dotnet restore ${{ inputs.path }}
@@ -150,7 +149,7 @@ jobs:
 
       - name: Push to private feed
         run: |
-          if ! dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN_PRIVATE }} --source ${{ inputs.nuget_source }} --skip-duplicate; then
+          if ! dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN_PRIVATE }} --source ${{ env.PRIVATE_NUGET_SOURCE }} --skip-duplicate; then
             echo "Failed to push packages to private feed"
             exit 1
           fi  
@@ -158,7 +157,7 @@ jobs:
       - name: Push to nuget.org
         if: ${{ inputs.publish_nuget }}
         run: |
-          if ! dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json --skip-duplicate; then
+          if ! dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source ${{ env.PUBLIC_NUGET_SOURCE }} --skip-duplicate; then
             echo "Failed to push packages to nuget.org"
             exit 1
           fi
