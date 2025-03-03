@@ -1,6 +1,11 @@
 name: Publish NuGet Package
 # This workflow is agreed on and requirements are documented
-# in https://bit.ly/4529Q9Q.
+# in https://codedoc.atlassian.net/wiki/spaces/LEGO/pages/3532357633/Requirements+to+update+the+release+process#:check_mark:-Requirement-1.-Any-publication-of-a-NuGet-package-to-the-public-nuget-feed-must-be-accompanied-by-the-creation-of-a-tag-in-git.
+
+# Environment variables set by actions:
+# - TAG_NUMBERS: Parsed version number from inputs.version (set by parse-version action)
+# - RELEASE_NOTES_FILE: Path to the temporary file containing release notes (set by extract-notes-changelog action)
+# - RELEASE_NAME: Name of the release (set by extract-notes-changelog action)
 
 on:
   workflow_call:
@@ -43,11 +48,6 @@ on:
         description: 'Relative path to the folder with solution file or project file.'
         required: true
         default: './src'
-      nuget-project-path:
-        type: string
-        description: 'Relative path to the folder with project file to pack.'
-        required: true
-        default: ''
       changelog_path:
         type: string
         description: 'Relative path to the CHANGELOG.md file'
@@ -58,6 +58,11 @@ on:
         description: 'Name of the tag, default to version'
         required: false
         default: ''
+      nuget_source:
+        type: string
+        description: 'URL for the private NuGet source'
+        required: false
+        default: 'https://nuget.lykke-business.ch/api/v3/index.json'
 
 jobs:
   build:
@@ -75,7 +80,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: add nuget source
-        run: dotnet nuget add source https://nuget.lykke-business.ch/api/v3/index.json -n snow
+        run: dotnet nuget add source ${{ inputs.nuget_source }} -n snow
 
       - name: Restore dependencies
         run: dotnet restore ${{ inputs.path }}
@@ -84,13 +89,13 @@ jobs:
         uses: LykkeBusiness/.github/.github/actions/nuget-vulnerability-check@master
         with:
           excluded-packages: ${{ inputs.excluded_vulnerable_packages }}
-          path: ${{ inputs.nuget-project-path }}
+          path: ${{ inputs.path }}
 
       - name: NuGet Deprecated Packages Check
         uses: LykkeBusiness/.github/.github/actions/deprecated-packages-check@master
         with:
           excluded-packages: ${{ inputs.excluded_deprecated_packages }}
-          path: ${{ inputs.nuget-project-path }}
+          path: ${{ inputs.path }}
 
       - name: Checkout deployment tools
         run: |
@@ -121,7 +126,7 @@ jobs:
         run: dotnet test ${{ inputs.path }} --no-build --no-restore --configuration Release --verbosity normal
 
       - name: Pack
-        run: dotnet pack ${{ inputs.nuget-project-path }} --no-build --configuration Release -o out
+        run: dotnet pack --no-build --configuration Release -o out
 
       - name: Tag version
         run: |
@@ -134,7 +139,7 @@ jobs:
           
           if (( $filesChanged > 0 )); then 
             TAG_NAME=${{ inputs.tag_name || inputs.version }}
-            echo "Creating tag $TA_NAME"
+            echo "Creating tag $TAG_NAME"
             git commit -m "Version ${{ env.TAG_NUMBERS }}"
             git tag -fa $TAG_NAME -m "${{ inputs.version }}"
             git push origin --tags
@@ -144,11 +149,19 @@ jobs:
           fi
 
       - name: Push to private feed
-        run: dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN_PRIVATE }} --source https://nuget.lykke-business.ch/api/v3/index.json --skip-duplicate
+        run: |
+          if ! dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN_PRIVATE }} --source ${{ inputs.nuget_source }} --skip-duplicate; then
+            echo "Failed to push packages to private feed"
+            exit 1
+          fi  
 
       - name: Push to nuget.org
         if: ${{ inputs.publish_nuget }}
-        run: dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN_LYKKEBIZ }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: |
+          if ! dotnet nuget push out/*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source https://api.nuget.org/v3/index.json --skip-duplicate; then
+            echo "Failed to push packages to nuget.org"
+            exit 1
+          fi
 
       - name: Extract release notes from changelog file
         if: ${{ inputs.create_release == 'true' }}
